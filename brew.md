@@ -1,9 +1,11 @@
-## 安装, 搜索, 更新brew, 更新软件, 查看哪些软件可更新, 查看已安装软件, 卸载, 清理
 ```
 brew install git
 brew search git 
+# 更新brew
 brew update
+# 更新git
 brew upgrade git
+# 查看可更新软件
 brew outdated
 brew list 
 brew uninstall git 
@@ -11,6 +13,7 @@ brew cleanup
 ```
 
 # 替换更新源
+```
 # 替换brew.git:
 $ cd "$(brew --repo)"
 # 中国科大:
@@ -35,3 +38,4 @@ $ source ~/.bash_profile
 
 # 应用生效:
 $ brew update
+```
