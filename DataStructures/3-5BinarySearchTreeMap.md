@@ -26,6 +26,11 @@ public class BinarySearchTreeMap<K extends Comparable<K>, V> implements Map<K, V
     private Node root;
     private int size;
 
+    public BinarySearchTreeMap(){
+        root = null;
+        size = 0;
+    }
+    
     @Override
     public void add(K key, V value) {
         root = add(root, key, value);
