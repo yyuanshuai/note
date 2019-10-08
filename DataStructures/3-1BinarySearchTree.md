@@ -1,5 +1,5 @@
 * 前序遍历-中序遍历-后序遍历->递归与非递归的实现
-
+* 中序遍历会按顺序遍历*
 ```
 import java.util.LinkedList;
 import java.util.Queue;

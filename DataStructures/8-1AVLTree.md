@@ -131,7 +131,7 @@ public class AVLTree<K extends Comparable<K>, V> {
         x.height = Math.max(getHeight(x.left), getHeight(x.right)) + 1;
 
         return x;
-    }
+    } 
 
     // 向二分搜索树中添加新的元素(key, value)
     public void add(K key, V value){
