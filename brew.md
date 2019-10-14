@@ -1,3 +1,6 @@
+
+brew services start nginx
+
 ```
 brew install git
 brew search git 

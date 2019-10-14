@@ -37,3 +37,11 @@
 /usr/local/etc/nginx/servers/*
 /usr/local/Cellar/nginx/1.17.0/bin/nginx/*.conf
 ```
+
+## 磁盘操作
+* df -h #显示目前在Linux系统上的文件系统的磁盘使用情况统计
+* diskutil list #查看设备列表
+* sudo dd bs=4m if=2018-11-13-raspbian-stretch-lite.img of=/dev/rdisk3 #将镜像写入磁盘
+* diskutil unmount /dev/disk3s1 #分区卸载
+* diskutil unmoutDisk /dev/disk2 #卸载设备
+
