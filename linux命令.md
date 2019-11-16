@@ -1,4 +1,21 @@
 
+### 查看内核版本
+cat /proc/version
+uname -a 
+linux 发行版信息
+lsb_release -a
+
+## debian
+
+#### 更换源
+sudo vim /etc/apt/sources.list
+deb http://mirrors.aliyun.com/raspbian/raspbian/ buster main non-free contrib rpi
+deb-src http://mirrors.aliyun.com/raspbian/raspbian/ buster main non-free contrib rpi
+sudo apt-get update
+sudo apt-get upgrade -y
+
+
+
 ## 杜甫
 * echo "127.0.0.1 text.com" | sudo tee -a /etc/hosts
 * pidof nginx
@@ -10,6 +27,26 @@
 + kill 9 parocessId #杀死进程
 + netstat -lntup #查端口
 + lsof -i:4000 #查看4000端口的详细信息
++ systemctl list-units --type=service
++ systemctl status firewalld
++ systemctl stop firewalld
++ systemctl start firewalld
++ systemctl restart firewalld
++ systemctl reload firewalld
++ systemctl disable firewalld
++ systemctl enable firewalld//开机自启
++ 
++ passwd root//修改密码
++ ps -ef | grep sshd//查看进程
++ free -m//查看内存情况
++ df -hT//查看磁盘空间占用情况：
++ du -h --max-depth=1 ./* //查看当前目录下的文件及文件夹所占大小：
++ ifconfig //显示当前网络接口状态
++ netstat -rn//查看当前路由信息：
++ netstat -tulnp // 查看系统中启动的监听服务：
++ wget
+
+
 # 打包和压缩文件
 
 * bunzip2 file1.bz2 解压一个叫做 'file1.bz2'的文件
@@ -118,6 +155,10 @@
 * yum clean packages 清理rpm缓存删除下载的包
 * yum clean headers 删除所有头文件
 * yum clean all 删除所有缓存的包和头文件
+* 检查可以更新的软件包：yum check-update
+* 更新指定的软件包：yum update nginx
+* 在资源库中查找软件包信息：yum info nginx*
+* 列出已经安装的所有软件包：yum info installed
 
 ### DEB 包 (Debian, Ubuntu 以及类似系统)
 * dpkg -i package.deb 安装/更新一个 deb 包
@@ -128,16 +169,17 @@
 * dpkg -L package_name 显示系统中已经安装的一个deb包所提供的文件列表
 * dpkg --contents package.deb 显示尚未安装的一个包所提供的文件列表
 * dpkg -S /bin/ping 确认所给的文件由哪个deb包提供
-* 
+
 ### APT 软件工具 (Debian, Ubuntu 以及类似系统)
 * apt-get install package_name 安装/更新一个 deb 包
-* apt-cdrom install package_name 从光盘安装/更新一个 deb 包
 * apt-get update 升级列表中的软件包
 * apt-get upgrade 升级所有已安装的软件
 * apt-get remove package_name 从系统删除一个deb包
 * apt-get check 确认依赖的软件仓库正确
 * apt-get clean 从下载的软件包中清理缓存
 * apt-cache search searched-package 返回包含所要搜索字符串的软件包名称
+* apt-cache search all
+* apt list --installed
 
 ### 用户和群组
 * groupadd group_name 创建一个新用户组
@@ -307,22 +349,12 @@ mount /dev/sda1 /mnt/usbdisk 挂载一个usb 捷盘或闪存设备
 mount -t smbfs -o username=user,password=pass //WinClient/share /mnt/share 挂载一个windows网络共享
 
 ### 文件和目录
-cd /home 进入 '/ home' 目录'
-cd .. 返回上一级目录
-cd ../.. 返回上两级目录
-cd 进入个人的主目录
-cd ~user1 进入个人的主目录
-cd - 返回上次所在的目录
-pwd 显示工作路径
-ls 查看目录中的文件
 ls -F 查看目录中的文件
 ls -l 显示文件和目录的详细资料
 ls -a 显示隐藏文件
 ls *[0-9]* 显示包含数字的文件名和目录名
 tree 显示文件和目录由根目录开始的树形结构(1)
 lstree 显示文件和目录由根目录开始的树形结构(2)
-mkdir dir1 创建一个叫做 'dir1' 的目录'
-mkdir dir1 dir2 同时创建两个目录
 mkdir -p /tmp/dir1/dir2 创建一个目录树
 rm -f file1 删除一个叫做 'file1' 的文件'
 rmdir dir1 删除一个叫做 'dir1' 的目录'

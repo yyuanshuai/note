@@ -77,3 +77,6 @@ git add README.md
 git commit -m "first commit"
 git remote add origin ssh://root@github.hspaces.cn:22222/meiya/meiya-php.git
 git push -u origin master
+
+//设置上游
+git push --set-upstream origin master
