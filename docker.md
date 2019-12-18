@@ -97,6 +97,17 @@ $docker stop $(docker ps -a -q) && docker system prune --all --force
 
 
 
-docker run --rm -p 127.0.0.1:81:80 -it -v ~/docker/nginx/conf:/etc/nginx/conf.d -v ~/project:/data/www --name nginx01 nginx /bin/bash
+docker run 
+--rm 
+-p 80:80 
+-it 
+-v ~/docker/nginx/nginx.conf:/etc/nginx/nginx.conf 
+-v ~/docker/nginx/conf:/etc/nginx/conf.d 
+-v ~/docker/nginx/html:/usr/share/nginx/html
+-v ~/docker/nginx/log:/var/log/nginx
+--name nginx01 
+nginx /bin/bash
 
-docker run --rm -p 127.0.0.1:82:80 -it --name nginx01 nginx /bin/bash
+docker run --rm -p 80:80 -it --name nginx01 nginx /bin/bash
+
+

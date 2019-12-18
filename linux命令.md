@@ -1,29 +1,38 @@
 
 ### 查看内核版本
-cat /proc/version
-uname -a 
-linux 发行版信息
-lsb_release -a
+* cat /proc/version
+* uname -a 查看内核
+
+### 查看查看linux版本
+* lsb_release -a
+* cat /etc/redhat-release
 
 ## debian
 
-#### 更换源
+# 更换源
+## debian
 sudo vim /etc/apt/sources.list
-deb http://mirrors.aliyun.com/raspbian/raspbian/ buster main non-free contrib rpi
-deb-src http://mirrors.aliyun.com/raspbian/raspbian/ buster main non-free contrib rpi
+### buster
+deb http://mirrors.aliyun.com/debian/ buster main non-free contrib
+deb http://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
+deb http://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
+deb-src http://mirrors.aliyun.com/debian/ buster main non-free contrib
+deb-src http://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
+deb-src http://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
+deb http://mirrors.aliyun.com/debian-security/ buster/updates main non-free contrib
+deb-src http://mirrors.aliyun.com/debian-security/ buster/updates main non-free contrib
+
 sudo apt-get update
 sudo apt-get upgrade -y
 
 
-
-## 杜甫
+## 常用
 * echo "127.0.0.1 text.com" | sudo tee -a /etc/hosts
 * pidof nginx
 * kill -USR2 $(pidof nginx)'
 * pkill -f nginx
 * arp -a #查看当前局域网内所有的ip和mac地址
-+ ps -ef | java
-+ pa aux #查看进程
++ ps -ef | grep sshd//查看进程  ps -aux | grep nginx
 + kill 9 parocessId #杀死进程
 + netstat -lntup #查端口
 + lsof -i:4000 #查看4000端口的详细信息
@@ -37,7 +46,6 @@ sudo apt-get upgrade -y
 + systemctl enable firewalld//开机自启
 + 
 + passwd root//修改密码
-+ ps -ef | grep sshd//查看进程
 + free -m//查看内存情况
 + df -hT//查看磁盘空间占用情况：
 + du -h --max-depth=1 ./* //查看当前目录下的文件及文件夹所占大小：
@@ -45,6 +53,9 @@ sudo apt-get upgrade -y
 + netstat -rn//查看当前路由信息：
 + netstat -tulnp // 查看系统中启动的监听服务：
 + wget
++ scp -r local_folder remote_username@remote_ip:remote_folder
++ chmod -R 777 folder
++ chown -R 
 
 
 # 打包和压缩文件
@@ -92,10 +103,17 @@ sudo apt-get upgrade -y
 * scp -r local_folder remote_username@remote_ip:remote_folder
 * scp -r local_folder remote_ip:remote_folder
 
-# SSH
+### SSH
+/etc/ssh/ssh_known_hosts
+//保存一些对所有用户都可信赖的远程主机的公钥
+$HOME/.ssh/known_hosts
+//保存远程主机的公钥文件
+$HOME/.ssh/config
+//
+
 * $HOME/.ssh
 * ssh -p 2222 root@host
-* ssh-keygen//生成ssh私钥和公钥在上面的目录下
+* ssh-keygen//生成ssh私钥和公钥在$HOME/.ssh目录下
 * ssh-copy-id user@host//复制到远程主机,, 之后就可以不用密码登录了
 * ssh user@host 'mkdir -p .ssh && cat >> .ssh/authorized_keys' < ~/.ssh/id_rsa.pub//是上面一条命令的解释
 
@@ -145,12 +163,14 @@ sudo apt-get upgrade -y
 * rpmbuild --rebuild package_name.src.rpm 从一个rpm源码构建一个 rpm 包
 
 ### YUM 软件包升级器 - （Fedora, RedHat及类似系统）
+* sudo yum install java-1.8.0-devel//安装JDK
 * yum install package_name 下载并安装一个rpm包
 * yum localinstall package_name.rpm 将安装一个rpm包，使用你自己的软件仓库为你解决所有依赖关系
 * yum update package_name.rpm 更新当前系统中所有安装的rpm包
 * yum update package_name 更新一个rpm包
 * yum remove package_name 删除一个rpm包
 * yum list 列出当前系统中安装的所有包
+* yum list instaled | grep java 列出当前系统中安装的所有包
 * yum search package_name 在rpm仓库中搜寻软件包
 * yum clean packages 清理rpm缓存删除下载的包
 * yum clean headers 删除所有头文件
@@ -159,6 +179,8 @@ sudo apt-get upgrade -y
 * 更新指定的软件包：yum update nginx
 * 在资源库中查找软件包信息：yum info nginx*
 * 列出已经安装的所有软件包：yum info installed
+* yum list docker-ce --showduplicates | sort -r安版本从高到低列出软件版本
+* yum makecache生成缓存
 
 ### DEB 包 (Debian, Ubuntu 以及类似系统)
 * dpkg -i package.deb 安装/更新一个 deb 包
@@ -171,15 +193,30 @@ sudo apt-get upgrade -y
 * dpkg -S /bin/ping 确认所给的文件由哪个deb包提供
 
 ### APT 软件工具 (Debian, Ubuntu 以及类似系统)
-* apt-get install package_name 安装/更新一个 deb 包
+* apt-get install nginx 安装/更新一个 deb 包
 * apt-get update 升级列表中的软件包
 * apt-get upgrade 升级所有已安装的软件
-* apt-get remove package_name 从系统删除一个deb包
+* apt-get remove nginx 从系统删除一个deb包
 * apt-get check 确认依赖的软件仓库正确
 * apt-get clean 从下载的软件包中清理缓存
-* apt-cache search searched-package 返回包含所要搜索字符串的软件包名称
-* apt-cache search all
+* apt-cache search nginx 返回包含所要搜索字符串的软件包名称
+* apt-cache search all | grep nginx
 * apt list --installed
+
+
+
+# pacman
+> *sudo pacman -S package_name1 ...//安装  
+> *sudo pacman -R package_name//删除  
+> *sudo pacman -Rs package_name//删除指定软件包，及其所有没有被其他已安装软件包使用的依赖关系
+> *sudo pacman -Ss string1 string2 //在包数据库中查询软件包，查询位置包含了软件包的名字和描述
+> *sudo pacman -Qs string1 string2//查询已安装的软件包
+> sudo pacman -Q --help//使用 -Q 参数查询本地软件包数据库
+> sudo pacman -S --help//使用 -S 参数查询远程同步的数据库
+> sudo pacman -U /path/to/package/package_name-version.pkg.tar.xz//安装一个本地包(不从源里下载）：
+> sudo pacman -Sc//将下载的软件包保存在 /var/cache/pacman/pkg/ 并且不会自动移除旧的和未安装版本的软件包，因此需要手动清理，以免该文件夹过于庞大。
+> sudo pacman -Qi package_name//查询本地安装包的详细信息
+
 
 ### 用户和群组
 * groupadd group_name 创建一个新用户组
@@ -189,6 +226,8 @@ sudo apt-get upgrade -y
 * useradd user1 创建一个新用户
 * userdel -r user1 删除一个用户 ( '-r' 排除主目录)
 * usermod -c "User FTP" -g system -d /ftp/user1 -s /bin/nologin user1 修改用户属性
+* usermod -G groupNmame username//将用户添加到组
+* groups yuanshuai查看当前用户所属的组
 * passwd 修改口令
 * passwd user1 修改一个用户的口令 (只允许root执行)
 * chage -E 2005-12-31 user1 设置用户口令的失效期限
@@ -252,6 +291,7 @@ dos2unix filedos.txt fileunix.txt 将一个文本文件的格式从MSDOS转换�
 unix2dos fileunix.txt filedos.txt 将一个文本文件的格式从UNIX转换成MSDOS
 recode ..HTML < page.txt > page.html 将一个文本文件转换成html
 recode -l | more 显示所有允许的转换格式
+
 文件系统分析
 badblocks -v /dev/hda1 检查磁盘hda1上的坏磁块
 fsck /dev/hda1 修复/检查hda1磁盘上linux文件系统的完整性
@@ -262,6 +302,7 @@ fsck.ext3 /dev/hda1 修复/检查hda1磁盘上ext3文件系统的完整性
 fsck.vfat /dev/hda1 修复/检查hda1磁盘上fat文件系统的完整性
 fsck.msdos /dev/hda1 修复/检查hda1磁盘上dos文件系统的完整性
 dosfsck /dev/hda1 修复/检查hda1磁盘上dos文件系统的完整性
+
 初始化一个文件系统
 mkfs /dev/hda1 在hda1分区创建一个文件系统
 mke2fs /dev/hda1 在hda1分区创建一个linux ext2的文件系统
@@ -269,10 +310,12 @@ mke2fs -j /dev/hda1 在hda1分区创建一个linux ext3(日志型)的文件系�
 mkfs -t vfat 32 -F /dev/hda1 创建一个 FAT32 文件系统
 fdformat -n /dev/fd0 格式化一个软盘
 mkswap /dev/hda3 创建一个swap文件系统
+
 SWAP文件系统
 mkswap /dev/hda3 创建一个swap文件系统
 swapon /dev/hda3 启用一个新的swap文件系统
 swapon /dev/hda2 /dev/hdb3 启用两个swap分区
+
 备份
 dump -0aj -f /tmp/home0.bak /home 制作一个 '/home' 目录的完整备份dump -1aj -f /tmp/home0.bak /home 制作一个 '/home' 目录的交互式备份
 restore -if /tmp/home0.bak 还原一个交互式备份
@@ -288,6 +331,7 @@ find /home/user1 -name '*.txt' | xargs cp -av --target-directory=/home/backup/ -
 find /var/log -name '*.log' | tar cv --files-from=- | bzip2 > log.tar.bz2 查找所有以 '.log' 结尾的文件并做成一个bzip包
 dd if=/dev/hda of=/dev/fd0 bs=512 count=1 做一个将 MBR (Master Boot Record)内容复制到软盘的动作
 dd if=/dev/fd0 of=/dev/hda bs=512 count=1 从已经保存到软盘的备份中恢复MBR内容
+
 光盘
 cdrecord -v gracetime=2 dev=/dev/cdrom -eject blank=fast -force 清空一个可复写的光盘内容
 mkisofs /dev/cdrom > cd.iso 在磁盘上创建一个光盘的iso镜像文件
@@ -300,6 +344,7 @@ cd-paranoia -B 从一个CD光盘转录音轨到 wav 文件中
 cd-paranoia -- "-3" 从一个CD光盘转录音轨到 wav 文件中（参数-3）
 cdrecord --scanbus 扫描总线以识别scsi通道
 dd if=/dev/hdc | md5sum 校验一个设备的md5sum编码，例如一张 CD
+
 网络 - （以太网和WIFI无线）
 ifconfig eth0 显示一个以太网卡的配置
 ifup eth0 启用一个 'eth0' 网络设备
