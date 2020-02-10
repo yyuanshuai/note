@@ -8,6 +8,7 @@ git add filenames
 git reset filename
 git reset --hard HEAD^
 git reset --hard HEAD~100
+git reset --hard 9e548fba2f7823662dfc578fa414753f2812fad0
 git commit -m "提交描述"
 git push origin master
 git push ssh://root@192.168.1.106:22/srv/buyplus.git
@@ -80,3 +81,32 @@ git push -u origin master
 
 //设置上游
 git push --set-upstream origin master
+
+
+
+
+Git global setup
+git config --global user.name "yangys"
+git config --global user.email "yangys@yangys.com"
+
+Create a new repository
+git clone http://gitlab.st.tmmall.cn/wsycloud/wsy_user.git
+cd wsy_user
+touch README.md
+git add README.md
+git commit -m "add README"
+git push -u origin master
+
+Existing folder
+cd existing_folder
+git init
+git remote add origin http://gitlab.st.tmmall.cn/wsycloud/wsy_user.git
+git add .
+git commit -m "Initial commit"
+git push -u origin master
+
+Existing Git repository
+cd existing_repo
+git remote add origin http://gitlab.st.tmmall.cn/wsycloud/wsy_user.git
+git push -u origin --all
+git push -u origin --tags

@@ -27,7 +27,7 @@ sudo apt-get upgrade -y
 
 
 ## 常用
-* echo "127.0.0.1 text.com" | sudo tee -a /etc/hosts
+* echo "127.0.0.1 zhucan-admin.com" | sudo tee -a /etc/hosts
 * pidof nginx
 * kill -USR2 $(pidof nginx)'
 * pkill -f nginx
@@ -53,7 +53,7 @@ sudo apt-get upgrade -y
 + netstat -rn//查看当前路由信息：
 + netstat -tulnp // 查看系统中启动的监听服务：
 + wget
-+ scp -r local_folder remote_username@remote_ip:remote_folder
++ scp -r local_folder remote_username@host:remote_folder
 + chmod -R 777 folder
 + chown -R 
 
@@ -79,11 +79,13 @@ sudo apt-get upgrade -y
 * tar -jxvf archive.tar.bz2 解压一个bzip2格式的压缩包
 * 
 * tar -zcvf archive.tar.gz dir1 创建一个gzip格式的压缩包
-* tar -zxvf archive.tar.gz 解压一个gzip格式的压缩包
+* tar -zxvf archive.tar.gz 解压一个gzip格式的压缩包////-C<目的目录>或--directory=<目的目录> 切换到指定的目录。
 * 
 * zip file1.zip file1 创建一个zip格式的压缩包
-* zip -r file1.zip file1 file2 dir1 将几个文件和目录同时压缩成一个zip格式的压缩包
+* zip -rS file1.zip file1 file2 dir1 将几个文件(递归处理，将指定目录下的所有文件和子目录一并处理。)和目录同时压缩成一个zip格式的压缩包 -s包含系统和隐藏文件
 * unzip file1.zip 解压一个zip格式压缩包
+* unzip -l 查看压缩包内所有文件
+* zipinfo filename.zip 查看压缩包内文件
 ****************
 
 #### 查看日志
@@ -96,12 +98,13 @@ sudo apt-get upgrade -y
 
 ### 复制文件到远程主机
 
-* scp local_file remote_username@remote_ip:remote_folder
-* scp local_file remote_username@remote_ip:remote_file
-* scp local_file remote_ip:remote_folder
-* scp local_file remote_ip:remote_file
-* scp -r local_folder remote_username@remote_ip:remote_folder
-* scp -r local_folder remote_ip:remote_folder
+* scp -r local_file remote_username@host:remote_folder
+* scp -r remote_username@host:remote_folder local_file
+* scp local_file remote_username@host:remote_file
+* scp local_file host:remote_folder
+* scp local_file host:remote_file
+* scp -r local_folder remote_username@host:remote_folder
+* scp -r local_folder host:remote_folder
 
 ### SSH
 /etc/ssh/ssh_known_hosts

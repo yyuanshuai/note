@@ -173,3 +173,23 @@ set session transaction isolation level read uncommitted;
 set session transaction isolation level read committed;
 set session transaction isolation level repeatable-read;
 set session transaction isolation level serializable;
+
+
+
+
+
+
+## 安全
+
+避免使用熟知的端口,降低被初级扫描的风险
+编辑/etc/my.cnf文件，mysqld 段落中配置新的端口参数，并重启mysql服务：
+port=3506 
+
+避免在主机名中只使用通配符，有助于限定可以连接数据库的客户端，否则服务就开放到了公网
+执行SQL更新语句，为每个用户指定允许连接的host范围。 1. 登录数据库，执行use mysql; ； 2. 执行语句select user,Host from user where Host='%';查看HOST为通配符的用户; 3. 删除用户或者修改用户host字段，删除语句：DROP USER 'user_name'@'%'; 。更新语句：update user set host = <new_host> where host = '%';。 4. 执行SQL语句:
+OPTIMIZE TABLE user;
+flush privileges;
+
+禁用local_infile选项会降低攻击者通过SQL注入漏洞器读取敏感文件的能力
+编辑Mysql配置文件/etc/my.cnf，在mysqld 段落中配置local-infile参数为0，并重启mysql服务：
+local-infile=0
