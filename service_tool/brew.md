@@ -2,17 +2,25 @@
 brew services start nginx
 
 ```
+brew search git
 brew install git
-brew search git 
+brew upgrade git
+brew uninstall git
 # 更新brew
 brew update
-# 更新git
-brew upgrade git
 # 查看可更新软件
 brew outdated
-brew list 
-brew uninstall git 
+brew list --versions [FORMULA...]
 brew cleanup
+brew search [TEXT|/REGEX/]
+
+# brwe info
+which brew 
+brew info [FORMULA...]
+brew config
+brew doctor
+Homebrew下载后的软件包放在/Library/Caches/Homebrew中
+安装时因为网络原因， 经常下载失败，可以先用其他下载工具下载好， 然后放到brew的缓存目录(运行brew --cache可得， 一般是/Library/Caches/Homebrew)里
 
 brew services list  # 查看使用brew安装的服务列表
 brew services run formula|--all  # 启动服务（仅启动不注册）

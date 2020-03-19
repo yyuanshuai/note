@@ -1,9 +1,27 @@
+### 快捷键
+
+```
+CTRL + U - 剪切光标前的内容
+CTRL + K - 剪切光标至行末的内容
+CTRL + Y - 粘贴
+CTRL + E - 移动光标到行末
+CTRL + A - 移动光标到行首
+ALT + F - 跳向下一个空格
+ALT + B - 跳回上一个空格
+ALT + Backspace - 删除前一个单词
+CTRL + W - 剪切光标前一个单词
+Shift + Insert - 向终端内粘贴文本
+```
+
+
 
 ### 查看内核版本
+
 * cat /proc/version
 * uname -a 查看内核
 
 ### 查看查看linux版本
+
 * lsb_release -a
 * cat /etc/redhat-release
 
@@ -248,7 +266,6 @@ $HOME/.ssh/config
 * reboot 重启(2)
 * logout 注销
 
-
 查看文件内容
 cat file1 从第一个字节开始正向查看文件的内容
 tac file1 从最后一行开始反向查看一个文件的内容
@@ -276,6 +293,13 @@ sed -e 's/stringa1//g' example.txt 从文档中只删除词汇 "string1" 并保�
 sed -n '1,5p;5q' example.txt 查看从第一行到第5行内容
 sed -n '5p;5q' example.txt 查看第5行
 sed -e 's/00*/0/g' example.txt 用单个零替换多个零
+
+//将当前路径下的所有文件/usr/local/etc/nginx/fastcgi.conf替换为/etc/nginx/fastcgi_params
+
+//mac下-i后需要接''空字符串
+
+sed -i '' "s#/usr/local/etc/nginx/fastcgi.conf#/etc/nginx/fastcgi_params#g" \`ls`
+
 cat -n file1 标示文件的行数
 cat example.txt | awk 'NR%2==1' 删除example.txt文件中的所有偶数行
 echo a b c | awk '{print $1}' 查看一行第一栏

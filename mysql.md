@@ -34,8 +34,9 @@ show processlist;
 # Path to the database root
 datadir=C:/ProgramData/MySQL/MySQL Server 5.7/Data
 
-
 //导出数据库或数据表到指定文件（需在MySQL文件夹bin目录）
+
+mysqldump -uroot -p -B --all-databases >  ~/db.sql;
 mysqldump -uroot -p -B 数据库名1 数据库名2 >  数据存放路径;
 mysqldump -uroot -p -B 数据库名 表名1 表名2 >  数据存放路径;
 注意：如果我们在备份一个数据库时，也带上 -B参数，更好，在恢复数据库时，不需要再创建空数据库
@@ -135,13 +136,13 @@ ALTER TABLE test14 DROP PRIMARY KEY;
 ALTER TABLE test14 MODIFY id INT UNSIGNED;
 -- 再来删除主键
 ALTER TABLE test14 DROP PRIMARY KEY;
- 
+
 修改表的存储引擎：
 -- 修改表的存储引擎
 -- ALTER TABLE tb_name ENGINE=存储引擎名称
 ALTER TABLE user12 ENGINE=MyISAM;
 ALTER TABLE user12 ENGINE=INNODB;
- 
+
 修改自增长值：
 -- 修改自增长的值
 -- ALTER TABLE tb_name AUTO_INCREMENT=值
@@ -177,6 +178,16 @@ set session transaction isolation level serializable;
 
 
 
+
+### 一些用法总结
+
+* 获取分组后每组的count数
+
+  > SELECT count(`category_id`) FROM `product` GROUP BY `category_id`;
+
+* 获取分组后的组数
+
+  > 
 
 
 ## 安全

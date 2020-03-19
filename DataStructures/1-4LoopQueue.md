@@ -1,39 +1,43 @@
 * 循环队列时间复杂度: O(1)
+
 * //ArrayQueue: 3.333271172
+
 * //LoopQueue: 0.011785373
+
+  
 
 public class LoopQueue<E> implements Queue<E> {
 
     private E[] data;
-
+    
     private int front;
-
+    
     private int tail;
-
+    
     public LoopQueue(int capacity) {
         data = (E[]) new Object[capacity + 1];
         front = 0;
         tail = 0;
     }
-
+    
     public LoopQueue() {
         this(10);
     }
-
+    
     public int getCapacity() {
         return data.length - 1;
     }
-
+    
     @Override
     public boolean isEmpty() {
         return front == tail;
     }
-
+    
     @Override
     public int getSize() {
         return tail >= front ? tail - front : tail - front + data.length;
     }
-
+    
     @Override
     public void enqueue(E e) {
         if ((tail + 1) % data.length == front) {
@@ -42,7 +46,7 @@ public class LoopQueue<E> implements Queue<E> {
         data[tail] = e;
         tail = (tail + 1) % data.length;
     }
-
+    
     @Override
     public E dequeue() {
         if (isEmpty()) {
@@ -56,7 +60,7 @@ public class LoopQueue<E> implements Queue<E> {
         }
         return ret;
     }
-
+    
     @Override
     public E getFront() {
         if (isEmpty()) {
@@ -64,7 +68,7 @@ public class LoopQueue<E> implements Queue<E> {
         }
         return data[front];
     }
-
+    
     private void resize(int newCapacity) {
         E[] newData = (E[]) new Object[newCapacity + 1];
         int size = getSize();
@@ -75,13 +79,13 @@ public class LoopQueue<E> implements Queue<E> {
         front = 0;
         tail = size;
     }
-
+    
     @Override
     public String toString() {
         StringBuilder res = new StringBuilder();
         res.append(String.format("Queue: size = %d, capacity = %d \n", getSize(), getCapacity()));
         res.append("front [");
-
+    
         for (int i = front; i != tail; i = (i + 1) % data.length) {
             res.append(data[i]);
             if ((i + 1) % data.length != tail) {
