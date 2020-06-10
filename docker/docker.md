@@ -42,9 +42,13 @@ docker rmi `image_id`
 ### docker attach 进入后台运行的容器
 
 docker attach `container_id`
+
+docker exec -it container_id /bin/bash 
+
 ### docker exec 发送命令到容器
 
 docker exec `container_id` `command`| -it 
+
 ### docker build 命令用于使用 Dockerfile 创建镜像。
 docker build [OPTIONS] PATH | URL | -
 ### docker logs 查看容器内部日志
@@ -55,6 +59,10 @@ docker top `container_id`
 ### * docker inspect 获取容器/镜像的元数据。
 
 docker inspect [OPTIONS] NAME|ID [NAME|ID...] 
+
+### 查看容器内部IP地址
+
+docker inspect --format '{{ .NetworkSettings.IPAddress }}' <container-ID> 
 
 ____________________
 
@@ -67,8 +75,10 @@ docker volume rm $(docker volume ls -q)
 ### 删除 network：
 docker network rm $(docker network ls -q)
 ### docker build 构建镜像
+
 docker build [选项] <上下文路径/URL/->| -t -f(指定dockerfile文件位置)| 
 ### docker port 列出指定的容器的端口映射，或者查找将PRIVATE_PORT NAT到面向公众的端口。
+
 docker port [OPTIONS] CONTAINER [PRIVATE_PORT[/PROTO]]
 ###  docker kill 杀掉运行中的容器mynginx -s :向容器发送一个信号
 docker kill -s KILL mynginx
@@ -77,9 +87,12 @@ docker pause [OPTIONS] CONTAINER [CONTAINER...]
 docker unpause [OPTIONS] CONTAINER [CONTAINER...]
 ### docker create : 创建一个新的容器但不启动它
 docker create [OPTIONS] IMAGE [COMMAND] [ARG...]
+
 ### 用于容器与主机之间的数据拷贝。
+
 * docker cp [OPTIONS] CONTAINER:SRC_PATH DEST_PATH|-
 * docker cp [OPTIONS] SRC_PATH|- CONTAINER:DEST_PATH
+* docker cp /dir 96f7f14e99ab:/www/
 ### docker diff : 检查容器里文件结构的更改。
 docker diff [OPTIONS] CONTAINER
 
@@ -99,6 +112,7 @@ docker search : 从Docker Hub查找镜像
 docker search -s 10 java
 
 ## 配置阿里云镜像加速器
+
 sudo mkdir -p /etc/docker
 sudo tee /etc/docker/daemon.json <<-'EOF'
 {
@@ -144,15 +158,43 @@ $docker stop $(docker ps -a -q) && docker system prune --all --force
 
   * mkdir -p ~/docker/docker-volume/nginx/conf.d  ~/docker/docker-volume/nginx/html ~/docker/docker-volume/nginx/log
   * ** 将nginx.conf复制到~/docker/docker-volume/nginx ** 
+  * 注意 : 容器内的/etc/nginx/fastcgi_params和宿主机的/usr/local/etc/nginx/fastcgi.conf||fastcgi_params
 
   > docker run -it -p 80:80 -v ~/docker/docker-volume/nginx/nginx.conf:/etc/nginx/nginx.conf -v ~/docker/docker-volume/nginx/conf.d:/etc/nginx/conf.d -v ~/docker/docker-volume/nginx/html:/usr/share/nginx/html -v ~/docker/docker-volume/nginx/log:/var/log/nginx --name nginx nginx:latest /bin/bash
 
 
 
-RabbitMQ//
+* RabbitMQ
 
-docker run --name rabbitmq -d -p 15672:15672 -p 5672:5672 rabbitmq:3.8-management
+  * docker run --name rabbitmq -d -p 15672:15672 -p 5672:5672 rabbitmq:3.8-management
 
-> -p指定容器内部端口号与宿主机之间的映射，rabbitMq默认要使用15672为其web端界面访问时端口，5672为数据通信端口
->
-> -management表示web有管理界面插件
+  > -p指定容器内部端口号与宿主机之间的映射，rabbitMq默认要使用15672为其web端界面访问时端口，5672为数据通信端口
+  >
+  > -management表示web有管理界面插件
+
+* ElasticSearch&&Kibana
+
+  ```
+  docker run -d --rm --name elasticsearch -p 9200:9200 -p9300:9300 -e "discovery.type=single-node" -e "cluster.name=docker-cluster" elasticsearch:6.5.0 
+  
+  cd /usr/share/elasticsearch/plugins/
+  
+  elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.2.0/elasticsearch-analysis-ik-7.2.0.zip
+  
+  docker restart elasticsearch 
+  
+  docker run -d --name kibana --link=elasticsearch:test  -p 5601:5601 kibana:7.2.0
+  
+  /usr/share/elasticsearch/config/elasticsearch.yml添加以下两行,解决跨域
+  http.cors.enabled: true 
+  http.cors.allow-origin: "*"
+  ```
+
+* Mongo
+
+  ```
+  docker run -d --rm --name mongo -p 27017:27017 mongo:3.6 --auth
+  * --auth:需要密码才能访问容器服务
+  ```
+
+  

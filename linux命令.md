@@ -25,12 +25,11 @@ Shift + Insert - 向终端内粘贴文本
 * lsb_release -a
 * cat /etc/redhat-release
 
-## debian
-
 # 更换源
-## debian
+
 sudo vim /etc/apt/sources.list
 ### buster
+
 deb http://mirrors.aliyun.com/debian/ buster main non-free contrib
 deb http://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
 deb http://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
@@ -43,8 +42,8 @@ deb-src http://mirrors.aliyun.com/debian-security/ buster/updates main non-free 
 sudo apt-get update
 sudo apt-get upgrade -y
 
-
 ## 常用
+
 * echo "127.0.0.1 zhucan-admin.com" | sudo tee -a /etc/hosts
 * pidof nginx
 * kill -USR2 $(pidof nginx)'
@@ -54,6 +53,7 @@ sudo apt-get upgrade -y
 + kill 9 parocessId #杀死进程
 + netstat -lntup #查端口
 + lsof -i:4000 #查看4000端口的详细信息
++ lsof -p 50417 -nP | grep TCP
 + systemctl list-units --type=service
 + systemctl status firewalld
 + systemctl stop firewalld
@@ -62,7 +62,6 @@ sudo apt-get upgrade -y
 + systemctl reload firewalld
 + systemctl disable firewalld
 + systemctl enable firewalld//开机自启
-+ 
 + passwd root//修改密码
 + free -m//查看内存情况
 + df -hT//查看磁盘空间占用情况：
@@ -74,9 +73,34 @@ sudo apt-get upgrade -y
 + scp -r local_folder remote_username@host:remote_folder
 + chmod -R 777 folder
 + chown -R 
-
++ sudo groupadd docker  # 创建docker用户组
++ sudo gpasswd -a $USER docker  # 把当前用户加入到docker用户组>>sudo usermod -aG docker your-user
++ newgrp docker   # 更新当前用户组变动（就不用退出并重新登录了）
 
 # 打包和压缩文件
+
+#### tar
+
+* tar -cvf archive.tar file1 创建一个非压缩的 tarball
+* tar -cvf archive.tar file1 file2 dir1 创建一个包含了 'file1', 'file2' 以及 'dir1'的档案文件
+* tar -tf archive.tar 显示一个包中的内容
+* tar -xvf archive.tar 释放一个包
+* tar -xvf archive.tar -C /tmp 将压缩包释放到 /tmp目录下
+* tar -jcvf archive.tar.bz2 dir1 创建一个bzip2格式的压缩包
+
+* tar -jxvf archive.tar.bz2 解压一个bzip2格式的压缩包
+* tar -zcvf archive.tar.gz dir1 创建一个gzip格式的压缩包
+* tar -zxvf archive.tar.gz 解压一个gzip格式的压缩包////-C<目的目录>或--directory=<目的目录> 切换到指定的目录。
+
+#### zip
+
+* zip file1.zip file1 创建一个zip格式的压缩包
+* zip -rS file1.zip file1 file2 dir1 将几个文件(递归处理，将指定目录下的所有文件和子目录一并处理。)和目录同时压缩成一个zip格式的压缩包 -s包含系统和隐藏文件
+* unzip file1.zip 解压一个zip格式压缩包
+* unzip -l 查看压缩包内所有文件
+* zipinfo filename.zip 查看压缩包内文件
+
+#### 其他
 
 * bunzip2 file1.bz2 解压一个叫做 'file1.bz2'的文件
 * bzip2 file1 压缩一个叫做 'file1' 的文件
@@ -87,23 +111,6 @@ sudo apt-get upgrade -y
 * rar a file1.rar file1 file2 dir1 同时压缩 'file1', 'file2' 以及目录 'dir1'
 * rar x file1.rar 解压rar包
 * unrar x file1.rar 解压rar包
-* tar -cvf archive.tar file1 创建一个非压缩的 tarball
-* tar -cvf archive.tar file1 file2 dir1 创建一个包含了 'file1', 'file2' 以及 'dir1'的档案文件
-* tar -tf archive.tar 显示一个包中的内容
-* tar -xvf archive.tar 释放一个包
-* tar -xvf archive.tar -C /tmp 将压缩包释放到 /tmp目录下
-****************
-* tar -jcvf archive.tar.bz2 dir1 创建一个bzip2格式的压缩包
-* tar -jxvf archive.tar.bz2 解压一个bzip2格式的压缩包
-* 
-* tar -zcvf archive.tar.gz dir1 创建一个gzip格式的压缩包
-* tar -zxvf archive.tar.gz 解压一个gzip格式的压缩包////-C<目的目录>或--directory=<目的目录> 切换到指定的目录。
-* 
-* zip file1.zip file1 创建一个zip格式的压缩包
-* zip -rS file1.zip file1 file2 dir1 将几个文件(递归处理，将指定目录下的所有文件和子目录一并处理。)和目录同时压缩成一个zip格式的压缩包 -s包含系统和隐藏文件
-* unzip file1.zip 解压一个zip格式压缩包
-* unzip -l 查看压缩包内所有文件
-* zipinfo filename.zip 查看压缩包内文件
 ****************
 
 #### 查看日志
@@ -266,7 +273,8 @@ $HOME/.ssh/config
 * reboot 重启(2)
 * logout 注销
 
-查看文件内容
+### 查看文件内容
+
 cat file1 从第一个字节开始正向查看文件的内容
 tac file1 从最后一行开始反向查看一个文件的内容
 more file1 查看一个长文件的内容
@@ -274,7 +282,9 @@ less file1 类似于 'more' 命令，但是它允许在文件中和正向操作�
 head -2 file1 查看一个文件的前两行
 tail -2 file1 查看一个文件的最后两行
 tail -f /var/log/messages 实时查看被添加到一个文件中的内容
-文本处理
+
+### 文本处理
+
 cat file1 file2 ... | command <> file1_in.txt_or_file1_out.txt general syntax for text manipulation using PIPE, STDIN and STDOUT
 cat file1 | command( sed, grep, awk, grep, etc...) > result.txt 合并一个文件的详细说明文本，并将简介写入一个新文件中
 cat file1 | command( sed, grep, awk, grep, etc...) >> result.txt 合并一个文件的详细说明文本，并将简介写入一个已有的文件中
@@ -313,13 +323,15 @@ sort file1 file2 | uniq -d 取出两个文件的交集(只留下同时存在于�
 comm -1 file1 file2 比较两个文件的内容只删除 'file1' 所包含的内容
 comm -2 file1 file2 比较两个文件的内容只删除 'file2' 所包含的内容
 comm -3 file1 file2 比较两个文件的内容只删除两个文件共有的部分
-字符设置和文件格式转换
+
+### 字符设置和文件格式转换
 dos2unix filedos.txt fileunix.txt 将一个文本文件的格式从MSDOS转换成UNIX
 unix2dos fileunix.txt filedos.txt 将一个文本文件的格式从UNIX转换成MSDOS
 recode ..HTML < page.txt > page.html 将一个文本文件转换成html
 recode -l | more 显示所有允许的转换格式
 
-文件系统分析
+### 文件系统分析
+
 badblocks -v /dev/hda1 检查磁盘hda1上的坏磁块
 fsck /dev/hda1 修复/检查hda1磁盘上linux文件系统的完整性
 fsck.ext2 /dev/hda1 修复/检查hda1磁盘上ext2文件系统的完整性
@@ -330,7 +342,8 @@ fsck.vfat /dev/hda1 修复/检查hda1磁盘上fat文件系统的完整性
 fsck.msdos /dev/hda1 修复/检查hda1磁盘上dos文件系统的完整性
 dosfsck /dev/hda1 修复/检查hda1磁盘上dos文件系统的完整性
 
-初始化一个文件系统
+### 初始化一个文件系统
+
 mkfs /dev/hda1 在hda1分区创建一个文件系统
 mke2fs /dev/hda1 在hda1分区创建一个linux ext2的文件系统
 mke2fs -j /dev/hda1 在hda1分区创建一个linux ext3(日志型)的文件系统
@@ -338,12 +351,12 @@ mkfs -t vfat 32 -F /dev/hda1 创建一个 FAT32 文件系统
 fdformat -n /dev/fd0 格式化一个软盘
 mkswap /dev/hda3 创建一个swap文件系统
 
-SWAP文件系统
+### SWAP文件系统
 mkswap /dev/hda3 创建一个swap文件系统
 swapon /dev/hda3 启用一个新的swap文件系统
 swapon /dev/hda2 /dev/hdb3 启用两个swap分区
 
-备份
+### 备份
 dump -0aj -f /tmp/home0.bak /home 制作一个 '/home' 目录的完整备份dump -1aj -f /tmp/home0.bak /home 制作一个 '/home' 目录的交互式备份
 restore -if /tmp/home0.bak 还原一个交互式备份
 rsync -rogpav --delete /home /tmp 同步两边的目录
@@ -359,7 +372,7 @@ find /var/log -name '*.log' | tar cv --files-from=- | bzip2 > log.tar.bz2 查找
 dd if=/dev/hda of=/dev/fd0 bs=512 count=1 做一个将 MBR (Master Boot Record)内容复制到软盘的动作
 dd if=/dev/fd0 of=/dev/hda bs=512 count=1 从已经保存到软盘的备份中恢复MBR内容
 
-光盘
+### 光盘
 cdrecord -v gracetime=2 dev=/dev/cdrom -eject blank=fast -force 清空一个可复写的光盘内容
 mkisofs /dev/cdrom > cd.iso 在磁盘上创建一个光盘的iso镜像文件
 mkisofs /dev/cdrom | gzip > cd_iso.gz 在磁盘上创建一个压缩了的光盘iso镜像文件
@@ -372,7 +385,7 @@ cd-paranoia -- "-3" 从一个CD光盘转录音轨到 wav 文件中（参数-3）
 cdrecord --scanbus 扫描总线以识别scsi通道
 dd if=/dev/hdc | md5sum 校验一个设备的md5sum编码，例如一张 CD
 
-网络 - （以太网和WIFI无线）
+### 网络 - （以太网和WIFI无线）
 ifconfig eth0 显示一个以太网卡的配置
 ifup eth0 启用一个 'eth0' 网络设备
 ifdown eth0 禁用一个 'eth0' 网络设备
@@ -406,7 +419,7 @@ smbclient -L ip_addr/hostname show remote shares of a windows host
 smbget -Rr smb://ip_addr/share like wget can download files from a host windows via smb
 mount -t smbfs -o username=user,password=pass //WinClient/share /mnt/share mount a windows network share
 
-挂载一个文件系统
+### 挂载一个文件系统
 mount /dev/hda2 /mnt/hda2 挂载一个叫做hda2的盘 - 确定目录 '/ mnt/hda2' 已经存在
 umount /dev/hda2 卸载一个叫做hda2的盘 - 先从挂载点 '/ mnt/hda2' 退出
 fuser -km /mnt/hda2 当设备繁忙时强制卸载

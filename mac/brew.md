@@ -1,5 +1,12 @@
-
 brew services start nginx
+
+下载目录
+
+/Users/yangyuanshuai/Library/Caches/Homebrew/
+
+/Users/yangyuanshuai/Library/Caches/Homebrew/cask
+
+/Users/yangyuanshuai/Library/Caches/Homebrew/downloads
 
 ```
 brew search git

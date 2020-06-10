@@ -1,14 +1,18 @@
-INSERT INTO table_name ( field1, field2,...fieldN )
-                       VALUES
-                       ( value1, value2,...valueN );
+1. 1.1
 
-SELECT column_name,column_name FROM table_name [WHERE Clause] [LIMIT N][ OFFSET M]
-select * from a left join b on a.id = b.a_id left join c on c.id = b.c_id;
 
-UPDATE table_name SET field1=new-value1, field2=new-value2 [WHERE Clause]
 
-DELETE FROM table_name [WHERE Clause]
+###### INSERT INTO table_name ( field1, field2,...fieldN ) VALUES ( value1, value2,...valueN );
 
+###### INSERT INTO table_name ( field1, field2,...fieldN ) SELECT ( value1, value2,...valueN ) FROM TABLE_NAME;
+
+###### SELECT column_name,column_name FROM table_name [WHERE Clause] [LIMIT N][ OFFSET M]
+
+###### select * from a left join b on a.id = b.a_id left join c on c.id = b.c_id;
+
+###### UPDATE table_name SET field1=new-value1, field2=new-value2 [WHERE Clause]
+
+###### DELETE FROM table_name [WHERE Clause]
 
 //修改密码
 SET PASSWORD FOR 'root'@'localhost' = PASSWORD('newpass');
@@ -31,6 +35,7 @@ show processlist;
 修改 mysql数据文件夹的路径的方法
 在mysql 安装目录 找到  my.ini
 再指定要把数据放到哪个目录(事先这个目录要存在)
+
 # Path to the database root
 datadir=C:/ProgramData/MySQL/MySQL Server 5.7/Data
 

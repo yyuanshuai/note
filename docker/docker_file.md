@@ -19,18 +19,20 @@
 
 	* ADD [--chown=<user>:<group>] <源路径>... <目标路径>
 	* ADD [--chown=<user>:<group>] ["<源路径1>",... "<目标路径>"]
-		* ADD 指令将会自动解压缩这个压缩文件到 <目标路径> 去。最适合使用 ADD 的场合，就是所提及的需要自动解压缩的场合。尽可能的使用 COPY
-
+		
+* ADD 指令将会自动解压缩这个压缩文件到 <目标路径> 去。最适合使用 ADD 的场合，就是所提及的需要自动解压缩的场合。尽可能的使用 COPY
+		
 	* ENTRYPOINT "<CMD>"
 	* ENTRYPOINT [ "curl", "-s", "https://ip.cn" ]
-		* 当存在 ENTRYPOINT 后，CMD 的内容将会作为参数传给 ENTRYPOINT
-
-	* VOLUME ["<路径1>", "<路径2>"...]
+	
+	* 当存在 ENTRYPOINT 后，CMD 的内容将会作为参数传给 ENTRYPOINT
+		
+* VOLUME ["<路径1>", "<路径2>"...]
 	* VOLUME <路径>
-
-	* ENV <key> <value>
+	
+* ENV <key> <value>
 	* ENV <key1>=<value1> <key2>=<value2>...
-
+	
 	* WORKDIR <工作目录路径>
 	
 

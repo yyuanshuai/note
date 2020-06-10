@@ -20,8 +20,11 @@
 * php-fpm.conf
 > /private/etc/php-fpm.conf
 > /etc/php-fpm.d/*.conf
+>
+> /private/etc/php.ini.default
 
 ## NGINX
+
 * 启动NGINX
 > `brew services start nginx`
 * 停止运行NGINX
