@@ -10,6 +10,7 @@
 链尾修改|O(1)|O(n)
 
 
+```
 public class LinkedList<E> {
 
     private class Node{
@@ -151,3 +152,7 @@ public class LinkedList<E> {
         return res.toString();
     }
 }
+
+
+
+```
