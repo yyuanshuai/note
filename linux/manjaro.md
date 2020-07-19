@@ -92,3 +92,4 @@ Xft.dpi:200
 > sudo pacman -U /path/to/package/package_name-version.pkg.tar.xz//安装一个本地包(不从源里下载）：
 > sudo pacman -Sc//将下载的软件包保存在 /var/cache/pacman/pkg/ 并且不会自动移除旧的和未安装版本的软件包，因此需要手动清理，以免该文件夹过于庞大。
 > sudo pacman -Qi package_name//查询本地安装包的详细信息
+

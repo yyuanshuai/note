@@ -153,7 +153,6 @@ ALTER TABLE user12 ENGINE=INNODB;
 -- ALTER TABLE tb_name AUTO_INCREMENT=值
 ALTER TABLE user12 AUTO_INCREMENT=100;
 
-
 -- username添加唯一性约束，如果没有指定索引名称，系统会以字段名建立索引
 ALTER TABLE user12 ADD UNIQUE(username);
 -- car添加唯一性约束
