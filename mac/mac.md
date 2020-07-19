@@ -1,11 +1,15 @@
 ## 环境变量
 
-1. /etc/profile 
-1. /etc/paths 
-1. ~/.bash_profile 
-1. ~/.bash_login 
-1. ~/.profile 
-1. ~/.bashrc 
+```
+/etc/profile 
+/etc/paths 
+~/.bash_profile 
+~/.bash_login 
+~/.profile 
+~/.bashrc 
+```
+
+
 
 
 ## php-fpm
@@ -25,16 +29,20 @@
 
 ## NGINX
 
-* 启动NGINX
-> `brew services start nginx`
-* 停止运行NGINX
-> `brew services stop nginx`
-* 重新加载NGINX
-> `nginx -s reload`
-* 停止nginx
-> `nginx -s stop`
+```
+启动NGINX
+`brew services start nginx`
+停止运行NGINX
+`brew services stop nginx`
+重新加载NGINX
+`nginx -s reload`
+停止nginx
+`nginx -s stop`
+nginx.conf
+```
 
-* nginx.conf
+
+
 ```
 /usr/local/etc/nginx/nginx.conf
 /usr/local/etc/nginx/servers/*
@@ -42,9 +50,11 @@
 ```
 
 ## 磁盘操作
-* df -h #显示目前在Linux系统上的文件系统的磁盘使用情况统计
-* diskutil list #查看设备列表
-* sudo dd bs=4m if=2018-11-13-raspbian-stretch-lite.img of=/dev/rdisk3 #将镜像写入磁盘
-* diskutil unmount /dev/disk3s1 #分区卸载
-* diskutil unmoutDisk /dev/disk2 #卸载设备
+```
+df -h #显示目前在Linux系统上的文件系统的磁盘使用情况统计
+diskutil list #查看设备列表
+sudo dd bs=4m if=2018-11-13-raspbian-stretch-lite.img of=/dev/rdisk3 #将镜像写入磁盘
+diskutil unmount /dev/disk3s1 #分区卸载
+diskutil unmoutDisk /dev/disk2 #卸载设备
+```
 
