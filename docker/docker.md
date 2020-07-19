@@ -171,6 +171,8 @@ $docker stop $(docker ps -a -q) && docker system prune --all --force
   cd /usr/share/elasticsearch/plugins/
   
   elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.2.0/elasticsearch-analysis-ik-7.2.0.zip
+  OR
+  sudo elasticsearch-plugin install file:///elasticsearch-analysis-ik-7.1.1.zip
   
   docker restart elasticsearch 
   
@@ -188,3 +190,13 @@ $docker stop $(docker ps -a -q) && docker system prune --all --force
   * --auth:需要密码才能访问容器服务
   ```
 
+### jenkins
+
+```
+  docker pull jenkins/jenkins:lts
+  
+  docker run -p 8080:8080 -p 50000:5000 --name jenkins \
+  -u root \
+  -v /mydata/jenkins_home:/var/jenkins_home \
+  -d jenkins/jenkins:lts
+```
