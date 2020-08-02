@@ -49,3 +49,9 @@ currentThread()#返回对当前正在执行的线程对象的引用。
 dumpStack()#将当前线程的堆栈跟踪打印至标准错误流。
 ```
 
+## 线程同步
+
+```java
+public synchronized void add (String name){}#执行该方法时当前对象被锁定
+synchronized (this){}#锁住当前对象, 使其不可被两个线程同时执行
+```
