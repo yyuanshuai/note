@@ -1,6 +1,7 @@
-* O(n): 数组头添加和删除
-* O(1): 数组尾添加和删除.查询.修改
-```
+O(n): 数组头添加和删除
+O(1): 数组尾添加和删除.查询.修改
+
+```java
 public class Array<E> {
 
     private E[] data;
@@ -45,7 +46,6 @@ public class Array<E> {
             data[i + 1] = data[i];
 
         data[index] = e;
-
         size ++;
     }
 
@@ -134,7 +134,6 @@ public class Array<E> {
 
     @Override
     public String toString(){
-
         StringBuilder res = new StringBuilder();
         res.append(String.format("Array: size = %d , capacity = %d\n", size, data.length));
         res.append('[');
@@ -149,7 +148,6 @@ public class Array<E> {
 
     // 将数组空间的容量变成newCapacity大小
     private void resize(int newCapacity){
-
         E[] newData = (E[])new Object[newCapacity];
         for(int i = 0 ; i < size ; i ++)
             newData[i] = data[i];

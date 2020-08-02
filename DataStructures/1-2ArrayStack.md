@@ -1,8 +1,11 @@
-* FILO(栈)
-* 数组尾push和pop O(1)
+数组栈
 
+FILO(栈)
+数组尾push和pop O(1)
+
+
+```java
 public class ArrayStack<E> implements Stack<E> {
-
     Array<E> array;
 
     public ArrayStack(int capacity) {
@@ -57,3 +60,5 @@ public class ArrayStack<E> implements Stack<E> {
         return res.toString();
     }
 }
+```
+

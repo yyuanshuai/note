@@ -1,6 +1,12 @@
-* 前序遍历-中序遍历-后序遍历->递归与非递归的实现
-* 中序遍历会按顺序遍历*
-```
+前序遍历-中序遍历-后序遍历->递归与非递归的实现
+
+前序遍历是层级遍历*
+
+中序遍历会按从小到大顺序遍历*
+
+后序遍历是先左子树后右子树*
+
+```java
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;

@@ -7,7 +7,7 @@
 * 索引堆
 * 二项堆
 * 斐波那契堆
-```
+```java
 public class MaxHeap<E extends Comparable<E>> {
 
     private Array<E> data;

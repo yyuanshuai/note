@@ -1,18 +1,17 @@
-* 循环队列时间复杂度: O(1)
+循环队列时间复杂度: O(1)
 
-* //ArrayQueue: 3.333271172
+//ArrayQueue: 3.333271172
 
-* //LoopQueue: 0.011785373
+//LoopQueue: 0.011785373
 
-  
 
+
+```java
 public class LoopQueue<E> implements Queue<E> {
 
     private E[] data;
     
-    private int front;
-    
-    private int tail;
+    private int front, tail;
     
     public LoopQueue(int capacity) {
         data = (E[]) new Object[capacity + 1];
@@ -96,3 +95,4 @@ public class LoopQueue<E> implements Queue<E> {
         return res.toString();
     }
 }
+```

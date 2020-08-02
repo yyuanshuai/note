@@ -7,7 +7,7 @@
 
 
 
-```
+```java
 
 public class PriorityQueue<E extends Comparable<E>> implements Queue<E> {
 

@@ -7,7 +7,7 @@ get |    O(n) | O(h) 平均: O(logn) 最差: O(n)
 contains|O(n) | O(h) 平均: O(logn) 最差: O(n)
 
 
-```
+```java
 public class BinarySearchTreeMap<K extends Comparable<K>, V> implements Map<K, V> {
 
     private class Node {

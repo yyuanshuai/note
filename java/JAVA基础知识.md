@@ -1,3 +1,7 @@
+int[] myList = new int[10];
+
+E[] data = (E[]) new Objecj[capacity];
+
 ### Socket
 
 客户端获取服务端socket信息

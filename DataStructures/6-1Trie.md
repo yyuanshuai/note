@@ -1,7 +1,7 @@
 * 字典树(非递归实现)
     * 对大量字符查找很高效
 
-```
+```java
 
 import java.util.TreeMap;
 

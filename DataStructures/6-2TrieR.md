@@ -1,6 +1,6 @@
 * 字典树(递归实现)
 
-```
+```java
 import java.util.TreeMap;
 
 /// TrieR 是 Trie in Recursion的意思
@@ -96,3 +96,4 @@ public class TrieR {
 }
 
 ```
+

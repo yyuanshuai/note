@@ -11,7 +11,7 @@
 --:|:--:|:--
 更新 |  O(n) | O(logn)
 查询 |  O(n) | O(logn)
-```
+```java
 public class SegmentTree<E> {
     private E[] tree;
     private E[] data;

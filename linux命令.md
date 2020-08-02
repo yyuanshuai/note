@@ -237,6 +237,7 @@ chmod o-t /home/public 禁用一个目录的 STIKY 位
 
 
 ### RPM 包 - （Fedora, Redhat及类似系统）
+
 ```
 rpm -ivh package.rpm 安装一个rpm包
 

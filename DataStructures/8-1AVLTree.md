@@ -1,5 +1,5 @@
 
-```
+```java
 import java.util.ArrayList;
 
 public class AVLTree<K extends Comparable<K>, V> {

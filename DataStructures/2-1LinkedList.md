@@ -10,7 +10,7 @@
 链尾修改|O(1)|O(n)
 
 
-```
+```java
 public class LinkedList<E> {
 
     private class Node{
@@ -114,6 +114,8 @@ public class LinkedList<E> {
         return false;
     }
     
+    // 从链表中删除index(0-based)位置的元素, 返回删除的元素
+    // 在链表中不是一个常用的操作，练习用：）
     public E remove(int index){
         if(index < 0 || index >= size){
             throw new IllegalArgumentException("add failed. illegal index ");
@@ -137,6 +139,23 @@ public class LinkedList<E> {
         return remove(size - 1);
     }
     
+    // 从链表中删除元素e
+    public void removeElement(E e){
+        Node prev = dummyHead;
+        while(prev.next != null){
+            if(prev.next.e.equals(e))
+                break;
+            prev = prev.next;
+        }
+
+        if(prev.next != null){
+            Node delNode = prev.next;
+            prev.next = delNode.next;
+            delNode.next = null;
+            size --;
+        }
+    }
+  
     @Override
     public String toString(){
         StringBuilder res = new StringBuilder();
@@ -152,7 +171,4 @@ public class LinkedList<E> {
         return res.toString();
     }
 }
-
-
-
 ```
