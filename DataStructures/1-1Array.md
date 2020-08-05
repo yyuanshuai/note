@@ -1,6 +1,14 @@
 O(n): 数组头添加和删除
 O(1): 数组尾添加和删除.查询.修改
 
+
+
+```
+//jdk源码是以下扩容方式
+int oldCapacity = elementData.length;
+int newCapacity = oldCapacity + (oldCapacity >> 1);
+```
+
 ```java
 public class Array<E> {
 
