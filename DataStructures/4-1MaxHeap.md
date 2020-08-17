@@ -1,5 +1,7 @@
+堆结构
 
-* 二叉堆(二叉树堆结构)
+
+* 二叉堆=大根堆(二叉树堆结构)
     * 是一颗完全二叉树
     * 堆中某个节点的值总是不大于其父节点的值
     * 不关心顺序,只关心最大, 最小
@@ -85,14 +87,13 @@ public class MaxHeap<E extends Comparable<E>> {
     private void siftDown(int k){
         while(leftChild(k) < data.getSize()){
             int j = leftChild(k); // 在此轮循环中,data[k]和data[j]交换位置
-            if( j + 1 < data.getSize() &&
-                    data.get(j + 1).compareTo(data.get(j)) > 0 )
+            if( j + 1 < data.getSize() && data.get(j + 1).compareTo(data.get(j)) > 0 )
                 j ++;
             // data[j] 是 leftChild 和 rightChild 中的最大值
 
-            if(data.get(k).compareTo(data.get(j)) >= 0 )
+            if(data.get(k).compareTo(data.get(j)) >= 0 ){
                 break;
-
+            }
             data.swap(k, j);
             k = j;
         }

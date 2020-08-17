@@ -2,7 +2,6 @@
     * 对大量字符查找很高效
 
 ```java
-
 import java.util.TreeMap;
 
 public class Trie {

@@ -6,10 +6,6 @@
 
 
 
-
-
-
-
 ## 接口隔离原则**（Interface Segregation Principle）**
 
 如果B类和D类实现了Interface1接口, A类依赖(使用)B类的1,2,3方法.C类依赖(使用)B类的1,4,5方法. 则需要把Interface1接口拆开成3个接口, 这就是接口隔离原则.
@@ -600,6 +596,78 @@ public enum Singleton {
 
 **注意事项：**作为一种创建类模式，在任何需要生成复杂对象的地方，都可以使用工厂方法模式。有一点需要注意的地方就是复杂对象适合使用工厂模式，而简单对象，特别是只需要通过 new 就可以完成创建的对象，无需使用工厂模式。如果使用工厂模式，就需要引入一个工厂类，会增加系统的复杂度。
 
+```java
+//创建一个接口:
+public interface Shape {
+   void draw();
+}
+//创建实现接口的实体类。
+public class Rectangle implements Shape {
+ 
+   @Override
+   public void draw() {
+      System.out.println("Inside Rectangle::draw() method.");
+   }
+}
+public class Square implements Shape {
+ 
+   @Override
+   public void draw() {
+      System.out.println("Inside Square::draw() method.");
+   }
+}
+public class Circle implements Shape {
+ 
+   @Override
+   public void draw() {
+      System.out.println("Inside Circle::draw() method.");
+   }
+}
+//创建一个工厂，生成基于给定信息的实体类的对象。
+public class ShapeFactory {
+    
+   //使用 getShape 方法获取形状类型的对象
+   public Shape getShape(String shapeType){
+      if(shapeType == null){
+         return null;
+      }        
+      if(shapeType.equalsIgnoreCase("CIRCLE")){
+         return new Circle();
+      } else if(shapeType.equalsIgnoreCase("RECTANGLE")){
+         return new Rectangle();
+      } else if(shapeType.equalsIgnoreCase("SQUARE")){
+         return new Square();
+      }
+      return null;
+   }
+}
+//使用该工厂，通过传递类型信息来获取实体类的对象。
+public class FactoryPatternDemo {
+ 
+   public static void main(String[] args) {
+      ShapeFactory shapeFactory = new ShapeFactory();
+ 
+      //获取 Circle 的对象，并调用它的 draw 方法
+      Shape shape1 = shapeFactory.getShape("CIRCLE");
+ 
+      //调用 Circle 的 draw 方法
+      shape1.draw();
+ 
+      //获取 Rectangle 的对象，并调用它的 draw 方法
+      Shape shape2 = shapeFactory.getShape("RECTANGLE");
+ 
+      //调用 Rectangle 的 draw 方法
+      shape2.draw();
+ 
+      //获取 Square 的对象，并调用它的 draw 方法
+      Shape shape3 = shapeFactory.getShape("SQUARE");
+ 
+      //调用 Square 的 draw 方法
+      shape3.draw();
+   }
+}
+```
+
 
 
 ### 抽象工厂模式
@@ -623,6 +691,161 @@ public enum Singleton {
 **使用场景：** 1、QQ 换皮肤，一整套一起换。 2、生成不同操作系统的程序。
 
 **注意事项：**产品族难扩展，产品等级易扩展。
+
+```java
+public interface Shape {
+   void draw();
+}
+public class Rectangle implements Shape {
+ 
+   @Override
+   public void draw() {
+      System.out.println("Inside Rectangle::draw() method.");
+   }
+}
+public class Square implements Shape {
+ 
+   @Override
+   public void draw() {
+      System.out.println("Inside Square::draw() method.");
+   }
+}
+public class Circle implements Shape {
+ 
+   @Override
+   public void draw() {
+      System.out.println("Inside Circle::draw() method.");
+   }
+}
+public interface Color {
+   void fill();
+}
+public class Red implements Color {
+ 
+   @Override
+   public void fill() {
+      System.out.println("Inside Red::fill() method.");
+   }
+}
+public class Green implements Color {
+ 
+   @Override
+   public void fill() {
+      System.out.println("Inside Green::fill() method.");
+   }
+}
+public class Blue implements Color {
+ 
+   @Override
+   public void fill() {
+      System.out.println("Inside Blue::fill() method.");
+   }
+}
+public abstract class AbstractFactory {
+   public abstract Color getColor(String color);
+   public abstract Shape getShape(String shape) ;
+}
+public class ShapeFactory extends AbstractFactory {
+    
+   @Override
+   public Shape getShape(String shapeType){
+      if(shapeType == null){
+         return null;
+      }        
+      if(shapeType.equalsIgnoreCase("CIRCLE")){
+         return new Circle();
+      } else if(shapeType.equalsIgnoreCase("RECTANGLE")){
+         return new Rectangle();
+      } else if(shapeType.equalsIgnoreCase("SQUARE")){
+         return new Square();
+      }
+      return null;
+   }
+   
+   @Override
+   public Color getColor(String color) {
+      return null;
+   }
+}
+public class ColorFactory extends AbstractFactory {
+    
+   @Override
+   public Shape getShape(String shapeType){
+      return null;
+   }
+   
+   @Override
+   public Color getColor(String color) {
+      if(color == null){
+         return null;
+      }        
+      if(color.equalsIgnoreCase("RED")){
+         return new Red();
+      } else if(color.equalsIgnoreCase("GREEN")){
+         return new Green();
+      } else if(color.equalsIgnoreCase("BLUE")){
+         return new Blue();
+      }
+      return null;
+   }
+}
+public class FactoryProducer {
+   public static AbstractFactory getFactory(String choice){
+      if(choice.equalsIgnoreCase("SHAPE")){
+         return new ShapeFactory();
+      } else if(choice.equalsIgnoreCase("COLOR")){
+         return new ColorFactory();
+      }
+      return null;
+   }
+}
+public class AbstractFactoryPatternDemo {
+   public static void main(String[] args) {
+ 
+      //获取形状工厂
+      AbstractFactory shapeFactory = FactoryProducer.getFactory("SHAPE");
+ 
+      //获取形状为 Circle 的对象
+      Shape shape1 = shapeFactory.getShape("CIRCLE");
+ 
+      //调用 Circle 的 draw 方法
+      shape1.draw();
+ 
+      //获取形状为 Rectangle 的对象
+      Shape shape2 = shapeFactory.getShape("RECTANGLE");
+ 
+      //调用 Rectangle 的 draw 方法
+      shape2.draw();
+      
+      //获取形状为 Square 的对象
+      Shape shape3 = shapeFactory.getShape("SQUARE");
+ 
+      //调用 Square 的 draw 方法
+      shape3.draw();
+ 
+      //获取颜色工厂
+      AbstractFactory colorFactory = FactoryProducer.getFactory("COLOR");
+ 
+      //获取颜色为 Red 的对象
+      Color color1 = colorFactory.getColor("RED");
+ 
+      //调用 Red 的 fill 方法
+      color1.fill();
+ 
+      //获取颜色为 Green 的对象
+      Color color2 = colorFactory.getColor("Green");
+ 
+      //调用 Green 的 fill 方法
+      color2.fill();
+ 
+      //获取颜色为 Blue 的对象
+      Color color3 = colorFactory.getColor("BLUE");
+ 
+      //调用 Blue 的 fill 方法
+      color3.fill();
+   }
+}
+```
 
 
 
@@ -669,6 +892,62 @@ public enum Singleton {
 **使用场景：** 1、如果在一个系统里面有许多类，它们之间的区别仅在于它们的行为，那么使用策略模式可以动态地让一个对象在许多行为中选择一种行为。 2、一个系统需要动态地在几种算法中选择一种。 3、如果一个对象有很多的行为，如果不用恰当的模式，这些行为就只好使用多重的条件选择语句来实现。
 
 **注意事项：**如果一个系统的策略多于四个，就需要考虑使用混合模式，解决策略类膨胀的问题。
+
+```java
+//创建一个策略接口。
+public interface Strategy {
+   public int doOperation(int num1, int num2);
+}
+//创建实现接口的实体类。
+public class OperationAdd implements Strategy{
+   @Override
+   public int doOperation(int num1, int num2) {
+      return num1 + num2;
+   }
+}
+public class OperationSubtract implements Strategy{
+   @Override
+   public int doOperation(int num1, int num2) {
+      return num1 - num2;
+   }
+}
+public class OperationMultiply implements Strategy{
+   @Override
+   public int doOperation(int num1, int num2) {
+      return num1 * num2;
+   }
+}
+//创建 Context 类。
+public class Context {
+   private Strategy strategy;
+ 
+   public Context(Strategy strategy){
+      this.strategy = strategy;
+   }
+ 
+   public int executeStrategy(int num1, int num2){
+      return strategy.doOperation(num1, num2);
+   }
+}
+//使用 Context 来查看当它改变策略 Strategy 时的行为变化。
+public class StrategyPatternDemo {
+   public static void main(String[] args) {
+      Context context = new Context(new OperationAdd());    
+      System.out.println("10 + 5 = " + context.executeStrategy(10, 5));
+ 
+      context = new Context(new OperationSubtract());      
+      System.out.println("10 - 5 = " + context.executeStrategy(10, 5));
+ 
+      context = new Context(new OperationMultiply());    
+      System.out.println("10 * 5 = " + context.executeStrategy(10, 5));
+   }
+}
+/**
+10 + 5 = 15
+10 - 5 = 5
+10 * 5 = 50
+**/
+```
 
 
 
