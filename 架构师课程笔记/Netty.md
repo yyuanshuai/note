@@ -1,0 +1,7 @@
+# 初识netty
+
+**Netty**是一个[非阻塞I/O](https://zh.wikipedia.org/wiki/异步IO)客户端-服务器[框架](https://zh.wikipedia.org/wiki/軟體框架)，主要用于开发[Java](https://zh.wikipedia.org/wiki/Java)网络应用程序，如协议服务器和客户端。异步[事件驱动](https://zh.wikipedia.org/wiki/事件驱动的编程)的网络应用程序框架和工具用于简化网络编程，例如[TCP](https://zh.wikipedia.org/wiki/传输控制协议)和[UDP](https://zh.wikipedia.org/wiki/用户数据报协议)套接字服务器。[[2\]](https://zh.wikipedia.org/wiki/Netty#cite_note-2)Netty包括了[反应器编程模式](https://zh.wikipedia.org/wiki/反应器模式)的实现。Netty最初由[JBoss](https://zh.wikipedia.org/wiki/JBoss)开发，现在由Netty项目社区开发和维护。
+
+除了作为异步网络应用程序框架，Netty还包括了对[HTTP](https://zh.wikipedia.org/wiki/超文本传输协议)、[HTTP2](https://zh.wikipedia.org/wiki/HTTP/2)、[DNS](https://zh.wikipedia.org/wiki/域名系统)及其他协议的支持，涵盖了在[Servlet容器](https://zh.wikipedia.org/wiki/Servlet容器)内运行的能力、对[WebSockets](https://zh.wikipedia.org/wiki/WebSocket)的支持、与[Google](https://zh.wikipedia.org/wiki/Google) [Protocol Buffers](https://zh.wikipedia.org/wiki/Protocol_Buffers)的集成、对[SSL](https://zh.wikipedia.org/wiki/傳輸層安全性協定)/[TLS](https://zh.wikipedia.org/wiki/傳輸層安全性協定)的支持以及对用于[SPDY](https://zh.wikipedia.org/wiki/SPDY)协议和消息[压缩](https://zh.wikipedia.org/wiki/数据压缩)的支持。自2004年以来，Netty一直在被积极开发。[[3\]](https://zh.wikipedia.org/wiki/Netty#cite_note-3)
+
+从版本4.0.0开始，Netty在支持[NIO](https://zh.wikipedia.org/wiki/Java_NIO)和阻塞Java套接字的同时，还支持使用NIO.2作为后端。

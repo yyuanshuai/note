@@ -144,6 +144,15 @@ docker run -d -p 3306:3306 \
 -v ~/docker/docker-volume/mysql/logs:/var/log/mysql \
 mysql:latest \
 mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+docker run -d -p 3306:3306 \
+--name mysql \
+-e MYSQL_ROOT_PASSWORD=root \
+-v D:/mydocker/docker-volume/mysql/data/db:/var/lib/mysql \
+-v D:/mydocker/docker-volume/mysql/data/conf.d:/etc/mysql/conf.d \
+-v D:/mydocker/docker-volume/mysql/logs:/var/log/mysql \
+mysql:5.7 \
+mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 ```
 
 ### nginx
@@ -154,6 +163,14 @@ mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 ##注意 : 容器内的/etc/nginx/fastcgi_params和宿主机的/usr/local/etc/nginx/fastcgi.conf||fastcgi_params
 docker run -it -p 80:80 -v ~/docker/docker-volume/nginx/nginx.conf:/etc/nginx/nginx.conf -v ~/docker/docker-volume/nginx/conf.d:/etc/nginx/conf.d -v ~/docker/docker-volume/nginx/html:/usr/share/nginx/html -v ~/docker/docker-volume/nginx/log:/var/log/nginx --name nginx nginx:latest /bin/bash
 ```
+
+### Redis
+
+```
+docker run -itd --name redis -p 6379:6379 redis
+```
+
+
 
 ### RabbitMQ
 

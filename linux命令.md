@@ -19,6 +19,7 @@ Shift + Insert - 向终端内粘贴文本
 
 ```
 cat /proc/version
+cat /proc/cpuinfo
 uname -a #查看内核
 ```
 
