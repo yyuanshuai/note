@@ -145,11 +145,13 @@ docker run -d -p 3306:3306 \
 mysql:latest \
 mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 
+mkdir -p D:/mydocker/docker-volume/mysql/data/db D:/mydocker/docker-volume/mysql/data/conf D:/mydocker/docker-volume/mysql/logs
+
 docker run -d -p 3306:3306 \
 --name mysql \
 -e MYSQL_ROOT_PASSWORD=root \
 -v D:/mydocker/docker-volume/mysql/data/db:/var/lib/mysql \
--v D:/mydocker/docker-volume/mysql/data/conf.d:/etc/mysql/conf.d \
+-v D:/mydocker/docker-volume/mysql/data/conf:/etc/mysql/conf.d \
 -v D:/mydocker/docker-volume/mysql/logs:/var/log/mysql \
 mysql:5.7 \
 mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
