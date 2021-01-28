@@ -1,6 +1,268 @@
-# MYSQL performance schema详解
+[打工四年总结的数据库知识点](https://juejin.cn/post/6883270227078070286)
 
-### erformance_schema的介绍
+[面试官问你B树和B+树，就把这篇文章丢给他](https://juejin.cn/post/6844903944292925447)
+
+[腾讯面试：一条SQL语句执行得很慢的原因有哪些？---不看后悔系列](https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485185&idx=1&sn=66ef08b4ab6af5757792223a83fc0d45&chksm=cea248caf9d5c1dc72ec8a281ec16aa3ec3e8066dbb252e27362438a26c33fbe842b0e0adf47&token=79317275&lang=zh_CN#rd)
+
+
+
+[【原创】数据库优化的几个阶段](https://www.cnblogs.com/rjzheng/p/9619855.html)
+
+
+
+
+
+
+
+1. ### 针对偶尔很慢的情况
+
+   1. #### 数据库在刷新脏页（flush）我也无奈啊
+
+      当我们要往数据库插入一条数据、或者要更新一条数据的时候，我们知道数据库会在**内存**中把对应字段的数据更新了，但是更新之后，这些更新的字段并不会马上同步持久化到**磁盘**中去，而是把这些更新的记录写入到 redo log 日记中去，等到空闲的时候，在通过 redo log 里的日记把最新的数据同步到**磁盘**中去。
+
+      > 当内存数据页跟磁盘数据页内容不一致的时候，我们称这个内存页为“脏页”。内存数据写入到磁盘后，内存和磁盘上的数据页的内容就一致了，称为“干净页”。
+
+      **刷脏页有下面4种场景（后两种不用太关注“性能”问题）：**
+
+      - **redolog写满了：**redo log 里的容量是有限的，如果数据库一直很忙，更新又很频繁，这个时候 redo log 很快就会被写满了，这个时候就没办法等到空闲的时候再把数据同步到磁盘的，只能暂停其他操作，全身心来把数据同步到磁盘中去的，而这个时候，**就会导致我们平时正常的SQL语句突然执行的很慢**，所以说，数据库在在同步数据到磁盘的时候，就有可能导致我们的SQL语句执行的很慢了。
+      - **内存不够用了：**如果一次查询较多的数据，恰好碰到所查数据页不在内存中时，需要申请内存，而此时恰好内存不足的时候就需要淘汰一部分内存数据页，如果是干净页，就直接释放，如果恰好是脏页就需要刷脏页。
+      - **MySQL 认为系统“空闲”的时候：**这时系统没什么压力。
+      - **MySQL 正常关闭的时候：**这时候，MySQL 会把内存的脏页都 flush 到磁盘上，这样下次 MySQL 启动的时候，就可以直接从磁盘上读数据，启动速度会很快。
+
+   2. #### 拿不到锁我能怎么办
+
+      当前数据表或行被加锁了,如果要判断是否真的在等待锁，我们可以用 **show processlist**这个命令来查看
+
+2. ### 一直都这么慢的情况
+
+   1. #### 没用到索引
+
+      1. 字段没有索引,走全表扫描
+
+      2. 有索引, 没用上(索引失效)
+
+         ```sql
+         #对SQL 进行函数操作*****
+         select * from t1 where date(c) ='2019-05-21';#索引失效
+         select * from t1 where c>='2019-05-21 00:00:00' and c<='2019-05-21 23:59:59';
+         #条件隐式转换->字符串不加单引号索引失效。*****
+         select * from t1 where a=1000;#索引失效
+         select * from t1 where a='1000';
+         #模糊查询 like*****
+         select * from t1 where a like '%1111%';#索引失效
+         select * from t1 where a like '1111%';
+         #范围查询太大*****
+         select * from t1 where b>=1 and b <=2000;#索引失效
+         select * from t1 where b>=1 and b <=1000;
+         select * from t1 where b>=1001 and b <=2000;
+         #对字段计算操作*****
+         select * from t1 where b-1 =1000;
+         select * from t1 where b =1000 + 1;
+         
+         #DATE_FORMAT()格式化时间，格式化后的时间再去比较，可能会导致索引失效。*****
+         
+         #使用 is null或 is not null 也无法使用索引。*****
+         
+         #全表扫描快于索引扫描（数据量小时）*****
+         
+         #OR 其中一个条件有索引，另一个没有索引
+         select * from order where customer_id = 123 or status = 'Y';
+         使用union改进
+         select * from order where customer_id = 123
+         UNION
+         select * from order where status = 'Y';
+         
+         #反向条件都用不到索引*****
+         select * from student where name != 'Jone';
+         select * from student where name not like 'jone%';
+         select * from student where status not in (1,2,3);
+         
+         #使用多列索引的非首列作为条件*****
+         
+         #索引字段作为范围查找的条件时。范围字段之后的索引全部失效。*****
+         ```
+
+   2. #### 数据库选错索引
+
+   3. #### 其他特定情况
+
+
+
+#### 使用order by 和limit查询变慢解决办法
+
+```sql
+显示行 0 - 9 (10 总计, 查询花费 32.4894 秒) 
+SQL 查询: SELECT * FROM tables WHERE m_id IN ( 50, 49 ) ORDER BY id DESC LIMIT 10 
+
+显示行 0 - 9 (10 总计, 查询花费 0.0497 秒) 
+SQL 查询: SELECT * FROM tables WHERE m_id IN ( 50, 49 ) LIMIT 10 
+ 
+显示行 0 - 29 (1,333 总计, 查询花费 0.0068 秒) 
+SQL 查询: SELECT * FROM tables WHERE m_id IN ( 50, 49 ) ORDER BY id DESC 
+ 
+显示行 0 - 29 (1,333 总计, 查询花费 0.12秒) 
+SQL 查询: SELECT * FROM tables WHERE m_id IN ( 50, 49 ) ORDER BY m_id, id DESC 
+ 
+显示行 0 - 29 (1,333 总计, 查询花费 0.0068 秒)//强制索引    
+SQL 查询: SELECT * FROM tables FORCE INDEX ( m_id ) WHERE m_id IN ( 50, 49 ) ORDER BY id DESC    
+```
+
+
+
+**优化limit和offset,**MySQL的limit工作原理就是先读取n条记录,然后抛弃前n条,读m条想要的,所以n越大,性能会越差,代码如下:
+
+优化前SQL:SELECT * FROM member ORDER BY last_active LIMIT 50,5 
+
+优化后SQL:SELECT * FROM member INNER JOIN (SELECT member_id FROM member ORDER BY last_active LIMIT 50,5) USING (member_id)
+
+分别在于,优化前的SQL需要更多I/O浪费,因为先读索引,再读数据,然后抛弃无需的行,而优化后的SQL(子查询那条)只读索引(Cover index)就可以了,然后通过member_id读取需要的列.
+
+
+
+#### mysql服务器优化,提升性能
+
+**1、只返回需要的数据**
+
+返回数据到客户端至少需要数据库提取数据、网络传输数据、客户端接收数据以及客户端处理数据等环节，如果返回不需要的数据,就会增加服务器、网络和客户端的无效劳动，其害处是显而易见的,避免这类事件需要注意:
+
+- A、横向来看,不要写SELECT *的语句,而是选择你需要的字段.
+- B、纵向来看,合理写WHERE子句,不要写没有WHERE的SQL语句.
+- C、注意SELECT INTO后的WHERE子句,因为SELECT INTO把数据插入到临时表,这个过程会锁定一些系统表,如果这个WHERE子句返回的数据过多或者速度太慢,会造成系统表长期锁定,诸塞其他进程.
+- D、对于聚合查询,可以用HAVING子句进一步限定返回的行.
+
+**2、尽量少做重复的工作**
+
+这一点和上一点的目的是一样的,就是尽量减少无效工作,但是这一点的侧重点在客户端程序,需要注意的如下:
+
+- A、控制同一语句的多次执行，特别是一些基础数据的多次执行是很多程序员很少注意的。
+
+- B、减少多次的数据转换，也许需要数据转换是设计的问题，但是减少次数是程序员可以做到的。
+
+- C、杜绝不必要的子查询和连接表，子查询在执行计划一般解释成外连接，多余的连接表带来额外的开销。
+
+- D、合并对同一表同一条件的多次UPDATE,比如代码如下:
+
+  ```mysql
+  UPDATE EMPLOYEE SET FNAME='HAIWER' WHERE EMP_ID='VPA30890F';
+  UPDATE EMPLOYEE SET LNAME='YANG' WHERE EMP_ID='VPA30890F'; 
+  #这两个语句应该合并成以下一个语句,代码如下:
+  UPDATE EMPLOYEE SET FNAME='HAIWER',LNAME='YANG' WHERE EMP_ID='VPA30890F';
+  ```
+
+- E、UPDATE操作不要拆成DELETE操作+INSERT操作的形式,虽然功能相同,但是性能差别是很大的.
+
+- F、不要写一些没有意义的查询,比如:SELECT * FROM EMPLOYEE WHERE 1=2
+
+**3、注意事务和锁**
+
+事务是数据库应用中和重要的工具，它有原子性、一致性、隔离性、持久性这四个属性，很多操作我们都需要利用事务来保证数据的正确性。在使用事务中我们需要做到尽量避免死锁、尽量减少阻塞。具体以下方面需要特别注意.
+
+- A、事务操作过程要尽量小，能拆分的事务要拆分开来。
+- B、事务操作过程不应该有交互，因为交互等待的时候，事务并未结束，可能锁定了很多资源。
+- C、事务操作过程要按同一顺序访问对象。
+- D、提高事务中每个语句的效率，利用索引和其他方法提高每个语句的效率可以有效地减少整个事务的执行时间。
+- E、尽量不要指定锁类型和索引，SQL SERVER允许我们自己指定语句使用的锁类型和索引，但是一般情况下，SQLSERVER优化器选择的锁类型和索引是在当前数据量和查询条件下是最优的，我们指定的可能只是在目前情况下更有,但是数据量和数据分布在将来是会变化的。
+- F、查询时可以用较低的隔离级别，特别是报表查询的时候，可以选择最低的隔离级别
+
+
+
+#### 查看sql语句执行时间
+
+> show profile
+>
+> show Profiles
+
+starting	0.00004
+checking permissions	0.000011
+Opening tables	0.000013
+init	0.000031
+System lock	0.000007
+optimizing	0.000004
+optimizing	0.000003
+statistics	0.000009
+preparing	0.000008
+statistics	0.000004
+preparing	0.000004
+executing	0.000006
+Sending data	0.000006
+executing	0.000003
+Sending data	0.000521
+end	0.000009
+query end	0.000006
+closing tables	0.000003
+removing tmp table	0.000006
+closing tables	0.000006
+freeing items	0.000079
+cleaning up	0.000012
+
+#### [SQL优化案例](https://juejin.cn/post/6895507965899063310)
+
+
+
+#### 如何查找MySQL中查询慢的SQL语句
+
+（1） 查看慢SQL日志是否启用
+
+**mysql> show variables like 'log_slow_queries';**
+
+（2） 查看执行慢于多少秒的SQL会记录到日志文件中
+**mysql> show variables like 'long_query_time';**
+
+1，slow_query_log
+
+这个参数设置为ON，可以捕获执行时间超过一定数值的SQL语句。
+
+2，long_query_time
+
+当SQL语句执行时间超过此数值时，就会被记录到日志中，建议设置为1或者更短。
+
+3，slow_query_log_file
+
+记录日志的文件名。
+
+4，log_queries_not_using_indexes
+
+这个参数设置为ON，可以捕获到所有未使用索引的SQL语句，尽管这个SQL语句有可能执行得挺快。
+
+**（1）、Windows下开启MySQL慢查询**
+
+MySQL在Windows系统中的配置文件一般是是my.ini找到[mysqld]下面加上
+
+**代码如下**
+
+log-slow-queries = F:/MySQL/log/mysqlslowquery。log
+long_query_time = 2
+
+
+**（2）、Linux下启用MySQL慢查询**
+
+MySQL在Windows系统中的配置文件一般是是my.cnf找到[mysqld]下面加上
+
+**代码如下**
+
+log-slow-queries=/data/mysqldata/slowquery。log
+long_query_time=2
+
+**说明**
+
+log-slow-queries = F:/MySQL/log/mysqlslowquery。
+
+为慢查询日志存放的位置，一般这个目录要有MySQL的运行帐号的可写权限，一般都将这个目录设置为MySQL的数据存放目录；
+long_query_time=2中的2表示查询超过两秒才记录；
+
+
+
+
+
+
+
+
+
+
+
+## MYSQL performance schema详解
+
+### performance_schema的介绍
 
  **MySQL的performance schema 用于监控MySQL server在一个较低级别的运行过程中的资源消耗、资源等待等情况**。
 
@@ -10,7 +272,7 @@
 
  2、performance_schema通过监视server的事件来实现监视server内部运行情况， “事件”就是server内部活动中所做的任何事情以及对应的时间消耗，利用这些信息来判断server中的相关资源消耗在了哪里？一般来说，事件可以是函数调用、操作系统的等待、SQL语句执行的阶段（如sql语句执行过程中的parsing 或 sorting阶段）或者整个SQL语句与SQL语句集合。事件的采集可以方便的提供server中的相关存储引擎对磁盘文件、表I/O、表锁等资源的同步调用信息。 3、performance_schema中的事件与写入二进制日志中的事件（描述数据修改的events）、事件计划调度程序（这是一种存储程序）的事件不同。performance_schema中的事件记录的是server执行某些活动对某些资源的消耗、耗时、这些活动执行的次数等情况。 4、performance_schema中的事件只记录在本地server的performance_schema中，其下的这些表中数据发生变化时不会被写入binlog中，也不会通过复制机制被复制到其他server中。 5、 当前活跃事件、历史事件和事件摘要相关的表中记录的信息。能提供某个事件的执行次数、使用时长。进而可用于分析某个特定线程、特定对象（如mutex或file）相关联的活动。 6、PERFORMANCE_SCHEMA存储引擎使用server源代码中的“检测点”来实现事件数据的收集。对于performance_schema实现机制本身的代码没有相关的单独线程来检测，这与其他功能（如复制或事件计划程序）不同 7、收集的事件数据存储在performance_schema数据库的表中。这些表可以使用SELECT语句查询，也可以使用SQL语句更新performance_schema数据库中的表记录（如动态修改performance_schema的setup_*开头的几个配置表，但要注意：配置表的更改会立即生效，这会影响数据收集） 8、performance_schema的表中的数据不会持久化存储在磁盘中，而是保存在内存中，一旦服务器重启，这些数据会丢失（包括配置表在内的整个performance_schema下的所有数据） 9、MySQL支持的所有平台中事件监控功能都可用，但不同平台中用于统计事件时间开销的计时器类型可能会有所差异。
 
-### erformance schema入门
+### performance schema入门
 
  在mysql的5.7版本中，性能模式是默认开启的，如果想要显式的关闭的话需要修改配置文件，不能直接进行修改，会报错Variable 'performance_schema' is a read only variable。
 
@@ -53,7 +315,7 @@ mysql> show create table setup_consumers;
 
  consumers:消费者，对应的消费者表用于存储来自instruments采集的数据，对应配置表中的配置项我们可以称为消费存储配置项。
 
-### erformance_schema表的分类
+### performance_schema表的分类
 
  performance_schema库下的表可以按照监视不同的纬度就行分组。
 
@@ -80,7 +342,7 @@ show tables like '%memory%';
 show tables like '%setup%';
 ```
 
-### erformance_schema的简单配置与使用
+### performance_schema的简单配置与使用
 
  数据库刚刚初始化并启动时，并非所有instruments(事件采集项，在采集项的配置表中每一项都有一个开关字段，或为YES，或为NO)和consumers(与采集项类似，也有一个对应的事件类型保存表配置项，为YES就表示对应的表保存性能数据，为NO就表示对应的表不保存性能数据)都启用了，所以默认不会收集所有的事件，可能你需要检测的事件并没有打开，需要进行设置，可以使用如下两个语句打开对应的instruments和consumers（行计数可能会因MySQL版本而异)。
 
@@ -320,7 +582,7 @@ select * from threads
 
 注意：在performance_schema库中还包含了很多其他的库和表，能对数据库的性能做完整的监控，大家需要参考官网详细了解。
 
-### erformance_schema实践操作
+### performance_schema实践操作
 
  基本了解了表的相关信息之后，可以通过这些表进行实际的查询操作来进行实际的分析。
 
@@ -355,7 +617,7 @@ SELECT event_id,EVENT_NAME,SOURCE,TIMER_END - TIMER_START FROM events_stages_his
 SELECT even
 ```
 
-# explain执行计划
+## explain执行计划
 
  在企业的应用场景中，为了知道优化SQL语句的执行，需要查看SQL语句的具体执行过程，以加快SQL语句的执行效率。
 
@@ -365,20 +627,20 @@ SELECT even
 
 ### 1、执行计划中包含的信息
 
-| Column        | Meaning                                        |
-| ------------- | ---------------------------------------------- |
-| id            | The `SELECT` identifier                        |
-| select_type   | The `SELECT` type                              |
-| table         | The table for the output row                   |
-| partitions    | The matching partitions                        |
-| type          | The join type                                  |
-| possible_keys | The possible indexes to choose                 |
-| key           | The index actually chosen                      |
-| key_len       | The length of the chosen key                   |
-| ref           | The columns compared to the index              |
-| rows          | Estimate of rows to be examined                |
-| filtered      | Percentage of rows filtered by table condition |
-| extra         | Additional information                         |
+| Column        | Meaning                                                      |
+| ------------- | ------------------------------------------------------------ |
+| id            | The `SELECT` identifier/表示查询中执行select子句或者操作表的顺序 |
+| select_type   | The `SELECT` type/分辨查询的类型，是普通查询还是联合查询还是子查询 |
+| table         | The table for the output row对应行正在访问哪一个表           |
+| partitions    | The matching partitions                                      |
+| type          | The join type以何种方式去查找数据(全表, const)               |
+| possible_keys | The possible indexes to choose可能应用在这张表中的索引       |
+| key           | The index actually chosen实际使用的索引                      |
+| key_len       | The length of the chosen key                                 |
+| ref           | The columns compared to the index索引的哪一列被使用了, 一或多列 |
+| rows          | Estimate of rows to be examined根据表的统计信息及索引使用情况，大致估算出找出所需记录需要读取的行数，此参数很重要 |
+| filtered      | Percentage of rows filtered by table condition               |
+| extra         | Additional information                                       |
 
 **id**
 
@@ -454,7 +716,9 @@ explain select staname,ename supname from (select ename staname,mgr from emp) t 
 
 **table**
 
-对应行正在访问哪一个表，表名或者别名，可能是临时表或者union合并结果集 1、如果是具体的表名，则表明从实际的物理表中获取数据，当然也可以是表的别名
+对应行正在访问哪一个表，表名或者别名，可能是临时表或者union合并结果集 
+
+1、如果是具体的表名，则表明从实际的物理表中获取数据，当然也可以是表的别名
 
  2、表名是derivedN的形式，表示使用了id为N的查询产生的衍生表
 
@@ -567,19 +831,18 @@ explain select * from emp where empno = 7469;
 
 
 
-# 数据类型优化
+## 数据类型优化
 
 1. 整型能用更小范围的用小字节的TINYINT, SMALLINT, MEDIUMINT, int, BIGINT
 2. 时间类型用datetime, timestamp, date
 3. 定长用char, 变长用varchar,
 4. 能用整型存的不要用字符串,比如IP
-5. 
-
-# 索引优化
 
 
 
-# 查询优化
+
+
+## 查询优化
 
 ### 避免回表查询
 
@@ -607,12 +870,213 @@ SELECT age FROM student WHERE name = '小李'；
 
 
 
-一些概念
 
-回表
 
-索引覆盖
 
-最左匹配
 
-索引下推
+## 一些概念
+
+- 回表
+
+> 根据索引查出记录id之后, 在根据id查询其他字段信息
+
+- 索引覆盖
+
+> 查询一条记录时, 直接可以从索引中找到需要查询的字段, 不需要回表
+
+- 最左匹配
+
+> MySQL中的索引可以以一定顺序引用多列，这种索引叫作联合索引。如User表的name和city加联合索引就是(name,city)，而最左前缀原则指的是，如果查询的时候查询条件精确匹配索引的左边连续一列或几列，则此列就可以被用到。
+
+- 索引下推
+
+> 
+
+- 聚簇索引
+
+  **聚集索引即索引结构和数据一起存放的索引。主键索引属于聚集索引。**
+
+  在 Mysql 中，InnoDB引擎的表的 `.ibd`文件就包含了该表的索引和数据，对于 InnoDB 引擎表来说，该表的索引(B+树)的每个非叶子节点存储索引，叶子节点存储索引和索引对应的数据。
+
+  优点
+
+  聚集索引的查询速度非常的快，因为整个B+树本身就是一颗多叉平衡树，叶子节点也都是有序的，定位到索引的节点，就相当于定位到了数据。
+
+  缺点
+
+1. **依赖于有序的数据** ：因为B+树是多路平衡树，如果索引的数据不是有序的，那么就需要在插入时排序，如果数据是整型还好，否则类似于字符串或UUID这种又长又难比较的数据，插入或查找的速度肯定比较慢。
+
+2. **更新代价大** ： 如果对索引列的数据被修改时，那么对应的索引也将会被修改， 而且况聚集索引的叶子节点还存放着数据，修改代价肯定是较大的， 所以对于主键索引来说，主键一般都是不可被修改的。
+
+   > 注：聚簇索引不需要我们显示的创建，他是由InnoDB存储引擎自动为我们创建的。如果没有主键，其也会默认创建一个。
+
+- 非聚簇索引
+
+>  普通索引建立的B+树, 节点内部(链表)使用索引字段排序, 叶子节点不再是完整的数据记录，而是索引字段和主键值
+>
+> ```
+> 如果我搜索条件是基于name，需要查询所有字段的信息，那查询过程是啥？
+> ```
+>
+> 1.根据查询条件，采用name的非聚簇索引，先定位到该非聚簇索引某些记录行。
+>
+> 2.根据记录行找到相应的id，再根据id到聚簇索引中找到相关记录。这个过程叫做`回表`。
+
+
+
+### 一些原则
+
+1.最左前缀原则。一个联合索引（a,b,c）,如果有一个查询条件有a，有b，那么他则走索引，如果有一个查询条件没有a，那么他则不走索引。
+
+2.使用唯一索引。具有多个重复值的列，其索引效果最差。例如，存放姓名的列具有不同值，很容易区分每行。而用来记录性别的列，只含有“男”，“女”，不管搜索哪个值，都会得出大约一半的行，这样的索引对性能的提升不够高。
+
+3.不要过度索引。每个额外的索引都要占用额外的磁盘空间，并降低写操作的性能。在修改表的内容时，索引必须进行更新，有时可能需要重构，因此，索引越多，所花的时间越长。
+
+4、索引列不能参与计算，保持列“干净”，比如from_unixtime(create_time) = ’2014-05-29’就不能使用到索引，原因很简单，b+树中存的都是数据表中的字段值，但进行检索时，需要把所有元素都应用函数才能比较，显然成本太大。所以语句应该写成create_time = unix_timestamp(’2014-05-29’);
+
+5.一定要设置一个主键。前面聚簇索引说到如果不指定主键，InnoDB会自动为其指定主键，这个我们是看不见的。反正都要生成一个主键的，还不如我们设置，以后在某些搜索条件时还能用到主键的聚簇索引。
+
+6.主键推荐用自增id，而不是uuid。上面的聚簇索引说到每页数据都是排序的，并且页之间也是排序的，如果是uuid，那么其肯定是随机的，其可能从中间插入，导致页的分裂，产生很多表碎片。如果是自增的，那么其有从小到大自增的，有顺序，那么在插入的时候就添加到当前索引的后续位置。当一页写满，就会自动开辟一个新的页。
+
+
+
+
+
+# [MySQL的万字总结（缓存，索引，Explain，事务，redo日志等）](https://juejin.cn/post/6844904039860142088)
+
+
+
+一条SQL语句过来的流程是什么样的？
+
+1.当客户端连接到MySQL服务器时，服务器对其进行认证。可以通过用户名与密码认证，也可以通过SSL证书进行认证。登录认证后，服务器还会验证客户端是否有执行某个查询的操作权限。
+
+2.在正式查询之前，服务器会检查查询缓存，如果能找到对应的查询，则不必进行查询解析，优化，执行等过程，直接返回缓存中的结果集。
+
+3.MySQL的解析器会根据查询语句，构造出一个解析树，主要用于根据语法规则来验证语句是否正确，比如SQL的关键字是否正确，关键字的顺序是否正确。
+
+而预处理器主要是进一步校验，比如表名，字段名是否正确等
+
+4.查询优化器将解析树转化为查询计划，一般情况下，一条查询可以有很多种执行方式，最终返回相同的结果，优化器就是根据`成本`找到这其中最优的执行计划
+
+5.执行计划调用查询执行引擎，而查询引擎通过一系列API接口查询到数据
+
+6.得到数据之后，在返回给客户端的同时，会将数据存在查询缓存中
+
+![img](https://user-gold-cdn.xitu.io/2019/6/17/16b631a00ea229f1?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+
+## 查询缓存
+
+MYSQL的查询缓存实质上是缓存SQL的hash值和该SQL的查询结果，如果运行相同的SQL,服务器直接从缓存中去掉结果，而不再去解析，优化，寻找最低成本的执行计划等一系列操作，大大提升了查询速度。
+
+- 第一个弊端就是如果表的数据有一条发生变化，那么缓存好的结果将全部不再有效。这对于频繁更新的表，查询缓存是不适合的。
+
+```
+所以MySQL对于数据有变化的表来说，会直接清空关于该表的所有缓存。这样其实是效率是很差的。
+```
+
+- 第二个弊端就是缓存机制是通过对SQL的hash，得出的值为key，查询结果为value来存放的，那么就意味着SQL必须完完全全一模一样，否则就命不中缓存。
+
+```
+我们都知道hash值的规则，就算很小的变化，哈希出来的结果差距是很多的,大小写和空格影响了他们，所以并不能命中缓存，但其实他们搜索结果是完全一样的。
+```
+
+
+网上资料和各大云厂商提供的云服务器都是将这个功能关闭的，从上面的原理来看，在一般情况下，`他的弊端大于优点`
+
+
+
+### 万年面试题（为什么索引用B+树）
+
+1、 B+树的磁盘读写代价更低：B+树的内部节点并没有指向关键字具体信息的指针，因此其内部节点相对B树更小，如果把所有同一内部节点的关键字存放在同一盘块中，那么盘块所能容纳的关键字数量也越多，一次性读入内存的需要查找的关键字也就越多，相对`IO读写次数就降低`了。
+
+2、由于B+树的数据都存储在叶子结点中，分支结点均为索引，方便扫库，只需要扫一遍叶子结点即可，但是B树因为其分支结点同样存储着数据，我们要找到具体的数据，需要进行一次中序遍历按序来扫，所以B+树更加适合在`区间查询`的情况，所以通常B+树用于数据库索引。
+
+
+
+## log
+
+https://juejin.cn/post/6860252224930070536
+
+## binlog
+
+`binlog`用于记录数据库执行的写入性操作(不包括查询)信息，以二进制的形式保存在磁盘中。`binlog`是`mysql`的逻辑日志，并且由`Server`层进行记录，使用任何存储引擎的`mysql`数据库都会记录`binlog`日志。
+
+> 逻辑日志：**可以简单理解为记录的就是sql语句**。
+
+> 物理日志：**因为`mysql`数据最终是保存在数据页中的，物理日志记录的就是数据页变更**。
+
+`binlog`是通过追加的方式进行写入的，可以通过`max_binlog_size`参数设置每个`binlog`文件的大小，当文件大小达到给定值之后，会生成新的文件来保存日志。
+
+### binlog使用场景
+
+在实际应用中，`binlog`的主要使用场景有两个，分别是**主从复制**和**数据恢复**。
+
+1. **主从复制**：在`Master`端开启`binlog`，然后将`binlog`发送到各个`Slave`端，`Slave`端重放`binlog`从而达到主从数据一致。
+2. **数据恢复**：通过使用`mysqlbinlog`工具来恢复数据。
+
+### binlog刷盘时机
+
+对于`InnoDB`存储引擎而言，只有在事务提交时才会记录`biglog`，此时记录还在内存中，那么`biglog`是什么时候刷到磁盘中的呢？`mysql`通过`sync_binlog`参数控制`biglog`的刷盘时机，取值范围是`0-N`：
+
+- 0：不去强制要求，由系统自行判断何时写入磁盘；
+- 1：每次`commit`的时候都要将`binlog`写入磁盘；
+- N：每N个事务，才会将`binlog`写入磁盘。
+
+从上面可以看出，`sync_binlog`最安全的是设置是`1`，这也是`MySQL 5.7.7`之后版本的默认值。但是设置一个大一些的值可以提升数据库性能，因此实际情况下也可以将值适当调大，牺牲一定的一致性来获取更好的性能。
+
+> `binlog`日志有三种格式，分别为`STATMENT`、`ROW`和`MIXED`。
+>
+> 在 `MySQL 5.7.7`之前，默认的格式是`STATEMENT`，`MySQL 5.7.7`之后，默认值是`ROW`。日志格式通过`binlog-format`指定。
+
+
+
+## redo日志（物理日志）
+
+### 为什么需要redo log
+
+我们都知道，事务的四大特性里面有一个是**持久性**，具体来说就是**只要事务提交成功，那么对数据库做的修改就被永久保存下来了，不可能因为任何原因再回到原来的状态**。那么`mysql`是如何保证持久性的呢？最简单的做法是在每次事务提交的时候，将该事务涉及修改的数据页全部刷新到磁盘中。但是这么做会有严重的性能问题，主要体现在两个方面：
+
+1. 因为`Innodb`是以`页`为单位进行磁盘交互的，而一个事务很可能只修改一个数据页里面的几个字节，这个时候将完整的数据页刷到磁盘的话，太浪费资源了！
+2. 一个事务可能涉及修改多个数据页，并且这些数据页在物理上并不连续，使用随机IO写入性能太差！
+
+因此`mysql`设计了`redo log`，**具体来说就是只记录事务对数据页做了哪些修改**，这样就能完美地解决性能问题了(相对而言文件更小并且是顺序IO)。
+
+### redo log基本概念
+
+`redo log`包括两部分：一个是内存中的日志缓冲(`redo log buffer`)，另一个是磁盘上的日志文件(`redo log file`)。`mysql`每执行一条`DML`语句，先将记录写入`redo log buffer`，后续某个时间点再一次性将多个操作记录写到`redo log file`。这种**先写日志，再写磁盘**的技术就是`MySQL`里经常说到的`WAL(Write-Ahead Logging)` 技术。
+
+在计算机操作系统中，用户空间(`user space`)下的缓冲区数据一般情况下是无法直接写入磁盘的，中间必须经过操作系统内核空间(`kernel space`)缓冲区(`OS Buffer`)。因此，`redo log buffer`写入`redo log file`实际上是先写入`OS Buffer`，然后再通过系统调用`fsync()`将其刷到`redo log file`中，过程如下： ![img](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/dbc4395ebadf4dbd87e1c64a6bdb68e0~tplv-k3u1fbpfcp-zoom-1.image)
+
+`mysql`支持三种将`redo log buffer`写入`redo log file`的时机，可以通过`innodb_flush_log_at_trx_commit`参数配置，各参数值含义如下：
+
+| 参数值              | 含义                                                         |
+| ------------------- | ------------------------------------------------------------ |
+| 0（延迟写）         | 事务提交时不会将`redo log buffer`中日志写入到`os buffer`，而是每秒写入`os buffer`并调用`fsync()`写入到`redo log file`中。也就是说设置为0时是(大约)每秒刷新写入到磁盘中的，当系统崩溃，会丢失1秒钟的数据。 |
+| 1（实时写，实时刷） | 事务每次提交都会将`redo log buffer`中的日志写入`os buffer`并调用`fsync()`刷到`redo log file`中。这种方式即使系统崩溃也不会丢失任何数据，但是因为每次提交都写入磁盘，IO的性能较差。 |
+| 2（实时写，延迟刷） | 每次提交都仅写入到`os buffer`，然后是每秒调用`fsync()`将`os buffer`中的日志写入到`redo log file`。 |
+
+### redo log记录形式
+
+前面说过，`redo log`实际上记录数据页的变更，而这种变更记录是没必要全部保存，因此`redo log`实现上采用了大小固定，循环写入的方式，当写到结尾时，会回到开头循环写日志。如下图： ![img](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5bd580611e99442a8037c9b5f0b519bc~tplv-k3u1fbpfcp-zoom-1.image)
+
+同时我们很容易得知，**在innodb中，既有`redo log`需要刷盘，还有`数据页`也需要刷盘，`redo log`存在的意义主要就是降低对`数据页`刷盘的要求**。在上图中，`write pos`表示`redo log`当前记录的`LSN`(逻辑序列号)位置，`check point`表示**数据页更改记录**刷盘后对应`redo log`所处的`LSN`(逻辑序列号)位置。`write pos`到`check point`之间的部分是`redo log`空着的部分，用于记录新的记录；`check point`到`write pos`之间是`redo log`待落盘的数据页更改记录。当`write pos`追上`check point`时，会先推动`check point`向前移动，空出位置再记录新的日志。
+
+启动`innodb`的时候，不管上次是正常关闭还是异常关闭，总是会进行恢复操作。因为`redo log`记录的是数据页的物理变化，因此恢复的时候速度比逻辑日志(如`binlog`)要快很多。 重启`innodb`时，首先会检查磁盘中数据页的`LSN`，如果数据页的`LSN`小于日志中的`LSN`，则会从`checkpoint`开始恢复。 还有一种情况，在宕机前正处于`checkpoint`的刷盘过程，且数据页的刷盘进度超过了日志页的刷盘进度，此时会出现数据页中记录的`LSN`大于日志中的`LSN`，这时超出日志进度的部分将不会重做，因为这本身就表示已经做过的事情，无需再重做。
+
+### redo log与binlog区别
+
+|          | redo log                                                     | binlog                                                       |
+| -------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 文件大小 | `redo log`的大小是固定的。                                   | `binlog`可通过配置参数`max_binlog_size`设置每个`binlog`文件的大小。 |
+| 实现方式 | `redo log`是`InnoDB`引擎层实现的，并不是所有引擎都有。       | `binlog`是`Server`层实现的，所有引擎都可以使用 `binlog`日志  |
+| 记录方式 | redo log 采用循环写的方式记录，当写到结尾时，会回到开头循环写日志。 | binlog 通过追加的方式记录，当文件大小大于给定值后，后续的日志会记录到新的文件上 |
+| 适用场景 | `redo log`适用于崩溃恢复(crash-safe)                         | `binlog`适用于主从复制和数据恢复                             |
+
+由`binlog`和`redo log`的区别可知：`binlog`日志只用于归档，只依靠`binlog`是没有`crash-safe`能力的。但只有`redo log`也不行，因为`redo log`是`InnoDB`特有的，且日志上的记录落盘后会被覆盖掉。因此需要`binlog`和`redo log`二者同时记录，才能保证当数据库发生宕机重启时，数据不会丢失。
+
+## undo log
+
+数据库事务四大特性中有一个是**原子性**，具体来说就是 **原子性是指对数据库的一系列操作，要么全部成功，要么全部失败，不可能出现部分成功的情况**。实际上，**原子性**底层就是通过`undo log`实现的。`undo log`主要记录了数据的逻辑变化，比如一条`INSERT`语句，对应一条`DELETE`的`undo log`，对于每个`UPDATE`语句，对应一条相反的`UPDATE`的`undo log`，这样在发生错误时，就能回滚到事务之前的数据状态。同时，`undo log`也是`MVCC`(多版本并发控制)实现的关键，这部分内容在[面试中的老大难-mysql事务和锁，一次性讲清楚！](https://juejin.im/post/6855129007336521741)中有介绍，不再赘述。
+
+
+

@@ -43,6 +43,6 @@ public class Student {
     * 配置url映射
 * @PathVariable("id") Integer id
 * @RequestParam(value = "id", required = false, defaultValue = "0") Integer myId
- 
+
 
 ### spring-data-jpa

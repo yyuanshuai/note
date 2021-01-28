@@ -356,38 +356,88 @@ API网关组件，对请求提供路由及过滤功能。
 
 
 
+# Spring Cloud组件
 
-# Eureka 服务发现框架
 
-# Ribbon 进程内负载均衡器
+## Eureka 服务发现框架
 
-# Open Feign 服务调用映射
+## Ribbon 进程内负载均衡器
+
+## Open Feign 服务调用映射
 
 Feign**是声明式的服务调用工具，我们只需创建一个接口并用注解的方式来配置它，就可以实现对某个服务接口的调用，简化了直接使用RestTemplate来调用服务接口的开发量**。Feign具备可插拔的注解支持，同时支持Feign注解、JAX-RS注解及SpringMvc注解。当使用Feign时，**Spring Cloud集成了Ribbon和Eureka以提供负载均衡的服务调用及基于Hystrix的服务容错保护功能**。
 
-# Hystrix 服务降级熔断器
+简单使用方法:
+
+假设a服务调用b服务
+
+1. @EnableFeignClients
+2. 在a服务新建b服务控制器的接口
+
+```java
+@FeignClient(value = "b")
+public interface UserService {
+    @PostMapping("/user/create")
+    CommonResult create(@RequestBody User user);
+
+    @GetMapping("/user/{id}")
+    CommonResult<User> getUser(@PathVariable Long id);
+}
+```
+
+3. 注入到类调用即可
+
+```java
+@Autowired
+private UserService userService;
+```
+
+还可以做降级, 日志打印功能
+
+```yml
+#常用配置
+feign:
+  hystrix:
+    enabled: true #在Feign中开启Hystrix
+  compression:
+    request:
+      enabled: false #是否对请求进行GZIP压缩
+      mime-types: text/xml,application/xml,application/json #指定压缩的请求数据类型
+      min-request-size: 2048 #超过该大小的请求会被压缩
+    response:
+      enabled: false #是否对响应进行GZIP压缩
+logging:
+  level: #修改日志级别
+    com.macro.cloud.service.UserService: debug
+```
+
+
+
+
+
+## Hystrix 服务降级熔断器
 
 在微服务架构中，服务与服务之间通过远程调用的方式进行通信，一旦某个被调用的服务发生了故障，其依赖服务也会发生故障，此时就会发生故障的蔓延，最终导致系统瘫痪。Hystrix实现了断路器模式，当某个服务发生故障时，通过断路器的监控，给调用方返回一个错误响应，而不是长时间的等待，这样就不会使得调用方由于长时间得不到响应而占用线程，从而防止故障的蔓延。Hystrix具备**服务降级、服务熔断、线程隔离、请求缓存、请求合并及服务监控**等强大功能。
 
-# Zuul 微服务网关
+## Zuul 微服务网关
 
 API网关为微服务架构中的服务提供了统一的访问入口，客户端通过API网关访问相关服务。API网关的定义类似于设计模式中的门面模式，它相当于整个微服务架构中的门面，所有客户端的访问都通过它来进行路由及过滤。它**实现了请求路由、负载均衡、校验过滤、服务容错、服务聚合等功能。**
 
 > 由于Zuul自动集成了Ribbon和Hystrix，所以Zuul天生就有负载均衡和服务容错能力，我们可以通过Ribbon和Hystrix的配置来配置Zuul中的相应功能。
 
-# Config 微服务统一配置中心
+## Config 微服务统一配置中心
 
 Spring Cloud Config 分为服务端和客户端两个部分。服务端被称为分布式配置中心，它是个独立的应用，可以从配置仓库获取配置信息并提供给客户端使用。客户端可以通过配置中心来获取配置信息，在启动时加载配置。Spring Cloud Config 的配置中心默认采用Git来存储配置信息，所以天然就支持配置信息的版本管理，并且可以使用Git客户端来方便地管理和访问配置信息。
 
-# Bus 消息总线
+## Bus 消息总线
 
 我们通常会使用消息代理来构建一个主题，然后把微服务架构中的所有服务都连接到这个主题上去，当我们向该主题发送消息时，所有订阅该主题的服务都会收到消息并进行消费。使用 Spring Cloud Bus 可以方便地构建起这套机制，所以 Spring Cloud Bus 又被称为消息总线。**Spring Cloud Bus 配合 Spring Cloud Config 使用可以实现配置的动态刷新。**目前 Spring Cloud Bus 支持两种消息代理：RabbitMQ 和 Kafka，下面以 RabbitMQ 为例来演示下使用Spring Cloud Bus 动态刷新配置的功能。
 
-# [Spring Cloud Sleuth：分布式请求链路跟踪](http://www.macrozheng.com/#/cloud/sleuth?id=spring-cloud-sleuth：分布式请求链路跟踪)
+## [Spring Cloud Sleuth：分布式请求链路跟踪](http://www.macrozheng.com/#/cloud/sleuth?id=spring-cloud-sleuth：分布式请求链路跟踪)
 
 随着我们的系统越来越庞大，各个服务间的调用关系也变得越来越复杂。当客户端发起一个请求时，这个请求经过多个服务后，最终返回了结果，经过的每一个服务都有可能发生延迟或错误，从而导致请求失败。这时候我们就需要请求链路跟踪工具来帮助我们，理清请求调用的服务链路，解决问题。
 
-# [Consul 简介](http://www.macrozheng.com/#/cloud/consul?id=consul-简介)
+## [Consul 简介](http://www.macrozheng.com/#/cloud/consul?id=consul-简介)
 
 Consul是HashiCorp公司推出的开源软件，提供了微服务系统中的服务治理、配置中心、控制总线等功能。这些功能中的每一个都可以根据需要单独使用，也可以一起使用以构建全方位的服务网格，总之Consul提供了一种完整的服务网格解决方案。
 
@@ -399,7 +449,7 @@ Spring Cloud Consul 具有如下特性：
 - 支持分布式配置管理：Consul作为配置中心时，使用键值对来存储配置信息；
 - 支持控制总线：可以在整个微服务系统中通过 Control Bus 分发事件消息。
 
-# [Gateway 简介](http://www.macrozheng.com/#/cloud/gateway?id=gateway-简介)
+## [Gateway 简介](http://www.macrozheng.com/#/cloud/gateway?id=gateway-简介)
 
 Gateway是在Spring生态系统之上构建的API网关服务，基于Spring 5，Spring Boot 2和 Project Reactor等技术。Gateway旨在提供一种简单而有效的方式来对API进行路由，以及提供一些强大的过滤器功能， 例如：熔断、限流、重试等。
 
@@ -414,7 +464,9 @@ Spring Cloud Gateway 具有如下特性：
 - 请求限流功能；
 - 支持路径重写。
 
-# [Spring Boot Admin 简介](http://www.macrozheng.com/#/cloud/admin?id=spring-boot-admin-简介)
+
+
+## [Spring Boot Admin 简介](http://www.macrozheng.com/#/cloud/admin?id=spring-boot-admin-简介)
 
 SpringBoot应用可以通过Actuator来暴露应用运行过程中的各项指标，Spring Boot Admin通过这些指标来监控SpringBoot应用，然后通过图形化界面呈现出来。Spring Boot Admin不仅可以监控单体应用，还可以和Spring Cloud的注册中心相结合来监控微服务应用。
 
@@ -429,6 +481,8 @@ Spring Boot Admin 可以提供应用的以下监控信息：
 - 查看JVM信息；
 - 查看可以访问的Web端点；
 - 查看HTTP跟踪信息。
+
+
 
 # [Nacos简介](http://www.macrozheng.com/#/cloud/nacos?id=nacos简介)
 
@@ -445,7 +499,9 @@ Nacos 具有如下特性:
 
 > Spring Cloud Alibaba 致力于提供微服务开发的一站式解决方案，Sentinel 作为其核心组件之一，具有熔断与限流等一系列服务保护功能，本文将对其用法进行详细介绍。
 
-## [Sentinel简介](http://www.macrozheng.com/#/cloud/sentinel?id=sentinel简介)
+
+
+# [Sentinel简介](http://www.macrozheng.com/#/cloud/sentinel?id=sentinel简介)
 
 随着微服务的流行，服务和服务之间的稳定性变得越来越重要。 Sentinel 以流量为切入点，从流量控制、熔断降级、系统负载保护等多个维度保护服务的稳定性。
 

@@ -36,6 +36,8 @@ cat /etc/redhat-release
 
 # 更换源
 
+https://developer.aliyun.com/mirror/
+
 ```
 sudo vim /etc/apt/sources.list#buster
 deb http://mirrors.aliyun.com/debian/ buster main non-free contrib

@@ -1,6 +1,14 @@
 ## 安装doker
 
-```
+```shell
+yum install -y yum-utils device-mapper-persistent-data lvm2
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+yum install docker-ce
+systemctl start docker
+
+#https://hub.docker.com
+
+
 sudo groupadd docker  # 创建docker用户组
 sudo gpasswd -a $USER docker  # 把当前用户加入到docker用户组>>sudo usermod -aG docker your-user
 newgrp docker   # 更新当前用户组变动（就不用退出并重新登录了）
@@ -10,11 +18,11 @@ newgrp docker   # 更新当前用户组变动（就不用退出并重新登录�
 
 
 
-```
+```shell
 docker info
 docker version 
 docker search -s version `image_name`//docker search centos 
-docker pull `image_name`//docker pull centos 
+docker pull `image_name`:'version'//docker pull centos 
 docker images| -a -q | 
 docker run --rm --restart=always -it -p 80:80 --name nginx01 -v ~/docker/nginx/nginx.conf:/etc/nginx/nginx.conf nginx:latest /bin/bash
 ##--rm 容器退出时自动移除容器
@@ -25,7 +33,8 @@ docker run --rm --restart=always -it -p 80:80 --name nginx01 -v ~/docker/nginx/n
 
 
 
-```
+```shell
+#常用容器操作
 docker ps |-a | -q
 docker start `container_id`
 docker stop `container_id`
@@ -33,11 +42,56 @@ docker restart `container_id`
 docker rm `container_id`
 docker rmi `image_id
 docker attach `container_id`#进入后台运行的容器
+docker rmi -f $(docker images)#强制删除所有镜像：
+docker rm -f $(docker ps -a -q)#强制删除所有容器
 
-docker exec -it container_id /bin/bash 
-docker top `container_id`#查看容器内部进程
-docker inspect [OPTIONS] NAME|ID [NAME|ID...] #获取容器/镜像的元数据。
-docker inspect --format '{{ .NetworkSettings.IPAddress }}' <container-ID> #查看容器内部IP地址
+#打包镜像 -t 表示指定镜像仓库名称/镜像名称:镜像标签 .表示使用当前目录下的Dockerfile文件
+docker build -t mall/mall-admin:1.0-SNAPSHOT .
+#执行容器内部命令
+docker exec -it $container_id /bin/bash 
+# 使用root账号进入容器内部
+docker exec -it --user root $ContainerName /bin/bash
+#强制停止容器
+docker kill $ContainerName
+#修改容器的启动方式
+docker container update --restart=always $ContainerName
+#指定容器网络
+docker run -p 80:80 --name nginx \
+--network my-bridge-network \
+-d nginx:1.17.0
+#指定容器时区
+docker run -p 80:80 --name nginx \
+-e TZ="Asia/Shanghai" \
+-d nginx:1.17.0
+#同步宿主机时间到容器
+docker cp /etc/localtime $ContainerName:/etc/
+```
+
+
+
+```shell
+#查看信息
+#查看容器产生的全部日志
+docker logs $ContainerName
+#动态查看容器产生的日志
+docker logs -f $ContainerName
+#查看容器内部进程
+docker top `container_id`
+#获取容器/镜像的元数据。
+docker inspect [OPTIONS] NAME|ID [NAME|ID...] 
+#查看容器内部IP地址
+docker inspect --format '{{ .NetworkSettings.IPAddress }}' <container-ID> 
+#查询出容器的pid
+docker inspect --format "{{.State.Pid}}" $ContainerName
+#查看指定容器资源占用状况，比如cpu、内存、网络、io状态：
+docker stats $ContainerName
+#查看所有容器资源占用情况：
+docker stats -a
+#查看所有网络
+docker network ls
+#查看Docker镜像的存放位置：
+docker info | grep "Docker Root Dir"
+
 ```
 
 
@@ -147,14 +201,7 @@ mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 
 mkdir -p D:/mydocker/docker-volume/mysql/data/db D:/mydocker/docker-volume/mysql/data/conf D:/mydocker/docker-volume/mysql/logs
 
-docker run -d -p 3306:3306 \
---name mysql \
--e MYSQL_ROOT_PASSWORD=root \
--v D:/mydocker/docker-volume/mysql/data/db:/var/lib/mysql \
--v D:/mydocker/docker-volume/mysql/data/conf:/etc/mysql/conf.d \
--v D:/mydocker/docker-volume/mysql/logs:/var/log/mysql \
-mysql:5.7 \
-mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+docker run -d -p 3306:3306 --name mysql -e MYSQL_ROOT_PASSWORD=root -v D:/mydocker/docker-volume/mysql/data/db:/var/lib/mysql -v D:/mydocker/docker-volume/mysql/data/conf:/etc/mysql/conf.d -v D:/mydocker/docker-volume/mysql/logs:/var/log/mysql mysql:5.7 mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 ```
 
 ### nginx
