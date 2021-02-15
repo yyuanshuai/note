@@ -15,21 +15,14 @@ Shift + Insert - 向终端内粘贴文本
 
 
 
-### 查看内核版本
-
-```
-cat /proc/version
-cat /proc/cpuinfo
-uname -a #查看内核
-```
-
-
-
-### 查看查看linux版本
+### 查看系统信息
 
 ```
 lsb_release -a
 cat /etc/redhat-release
+cat /proc/version
+cat /proc/cpuinfo
+uname -a #查看内核
 ```
 
 
@@ -38,51 +31,19 @@ cat /etc/redhat-release
 
 https://developer.aliyun.com/mirror/
 
-```
-sudo vim /etc/apt/sources.list#buster
-deb http://mirrors.aliyun.com/debian/ buster main non-free contrib
-deb http://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
-deb http://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
-deb-src http://mirrors.aliyun.com/debian/ buster main non-free contrib
-deb-src http://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
-deb-src http://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
-deb http://mirrors.aliyun.com/debian-security/ buster/updates main non-free contrib
-deb-src http://mirrors.aliyun.com/debian-security/ buster/updates main non-free contrib
+# 常用
 
-sudo apt-get update
-sudo apt-get upgrade -y
-```
-
-
-
-## 常用
-
-```
+```shell
 echo "127.0.0.1 zhucan-admin.com" | sudo tee -a /etc/hosts
-pidof nginx
-kill -USR2 $(pidof nginx)'
-pkill -f nginx
+
 arp -a #查看当前局域网内所有的ip和mac地址
-ps -ef | grep sshd//查看进程  ps -aux | grep nginx
-kill 9 parocessId #杀死进程
-netstat -lntup #查端口
-lsof -i:4000 #查看4000端口的详细信息
-lsof -p 50417 -nP | grep TCP
-systemctl list-units --type=service//查看所有以启动服务
-systemctl status firewalld
-systemctl stop firewalld
-systemctl start firewalld
-systemctl restart firewalld
-systemctl reload firewalld
-systemctl disable firewalld
-systemctl enable firewalld//开机自启
-passwd root//修改密码
-free -m//查看内存情况
-df -hT//查看磁盘空间占用情况：
-du -h --max-depth=1 ./* //查看当前目录下的文件及文件夹所占大小：
-ifconfig //显示当前网络接口状态
-netstat -rn//查看当前路由信息：
-netstat -tulnp // 查看系统中启动的监听服务：
+ps -ef | grep sshd #查看进程  ps -aux | grep nginx
+
+passwd root #修改密码
+free -m #查看内存情况
+df -hT #查看磁盘空间占用情况：
+du -h --max-depth=1 ./* #查看当前目录下的文件及文件夹所占大小：
+ifconfig #显示当前网络接口状态
 wget
 scp -r local_folder remote_username@host:remote_folder
 chmod -R 777 folder
@@ -92,11 +53,175 @@ chown -R
 
 
 
+# 进程操作
+
+`bash`的作业控制命令包括`bg fg kill wait disown suspend`。
+
+```shell
+#lsof命令 用于查看你进程打开的文件，打开文件的进程，进程打开的端口(TCP、UDP)。找回/恢复删除的文件。是十分方便的系统监视工具，因为lsof命令需要访问核心内存和各种文件，所以需要root用户执行。
+lsof -i:4000 #查看4000端口的占用情况
+lsof -p 50417 -nP | grep TCP
+lsof abc.txt #显示开启文件abc.txt的进程
+lsof -c abc #显示abc进程现在打开的文件
+lsof -c -p 1234 #列出进程号为1234的进程所打开的文件
+lsof -g gid #显示归属gid的进程情况
+lsof +d /usr/local/ #显示目录下被进程开启的文件
+lsof +D /usr/local/ #同上，但是会搜索目录下的目录，时间较长
+lsof -d 4 #显示使用fd为4的进程
+lsof -i -U #显示所有打开的端口和UNIX domain文件
+
+#netstat命令 用来打印Linux中网络系统的状态信息，可让你得知整个Linux系统的网络情况。
+选项
+-a或--all：显示所有连线中的Socket；
+-A<网络类型>或--<网络类型>：列出该网络类型连线中的相关地址；
+-c或--continuous：持续列出网络状态；
+-C或--cache：显示路由器配置的快取信息；
+-e或--extend：显示网络其他相关信息；
+-F或--fib：显示FIB；
+-g或--groups：显示多重广播功能群组组员名单；
+-h或--help：在线帮助；
+-i或--interfaces：显示网络界面信息表单；
+-l或--listening：显示监控中的服务器的Socket；
+-M或--masquerade：显示伪装的网络连线；
+-n或--numeric：直接使用ip地址，而不通过域名服务器；
+-N或--netlink或--symbolic：显示网络硬件外围设备的符号连接名称；
+-o或--timers：显示计时器；
+-p或--programs：显示正在使用Socket的程序识别码和程序名称；
+-r或--route：显示Routing Table；
+-s或--statistice：显示网络工作信息统计表；
+-t或--tcp：显示TCP传输协议的连线状况；
+-u或--udp：显示UDP传输协议的连线状况；
+-v或--verbose：显示指令执行过程；
+-V或--version：显示版本信息；
+-w或--raw：显示RAW传输协议的连线状况；
+-x或--unix：此参数的效果和指定"-A unix"参数相同；
+--ip或--inet：此参数的效果和指定"-A inet"参数相同。
+netstat -a     #列出所有端口
+netstat -at    #列出所有tcp端口
+netstat -au    #列出所有udp端口         
+netstat -l        #只显示监听端口
+netstat -lt       #只列出所有监听 tcp 端口
+netstat -lu       #只列出所有监听 udp 端口
+netstat -lx       #只列出所有监听 UNIX 端口
+netstat -an | grep ':80'
+netstat -lntup  #列出所有监听端口
+netstat -tulnp # 查看系统中启动的监听服务：
+netstat -rn #查看当前路由信息：
+netstat -ntlp   //查看当前所有tcp端口
+netstat -ntulp | grep 80   //查看所有80端口使用情况
+netstat -ntulp | grep 3306   //查看所有3306端口使用情况
+
+#pidof命令 用于查找指定名称的进程的进程号id号。
+pidof nginx
+-s：仅返回一个进程号；
+-c：仅显示具有相同“root”目录的进程；
+-x：显示由脚本开启的进程；
+-o：指定不显示的进程ID。
+
+#kill: 发送信号到作业或进程（可以为多个）。
+HUP     1    终端挂断
+INT     2    中断（同 Ctrl + C）
+QUIT    3    退出（同 Ctrl + \）
+KILL    9    强制终止
+TERM   15    终止
+CONT   18    继续（与STOP相反，fg/bg命令）
+STOP   19    暂停（同 Ctrl + Z）
+# 以下发送KILL信号的形式等价。当然还有更多的等价形式，在此不一一列举了。
+[user2@pc] kill -s SIGKILL PID
+[user2@pc] kill -s KILL PID
+[user2@pc] kill -n 9 PID
+[user2@pc] kill -9 PID
+
+
+#pkill命令 可以按照进程名杀死进程。
+#kill对应的是PID，pkill对应的是command。
+pkill -9  php-fpm #结束所有的 php-fpm 进程
+```
+
+
+
+# 服务操作
+
+## systemctl
+
+> systemctl命令 是系统服务管理器指令，它实际上将 service 和 chkconfig 这两个命令组合到一起。
+
+| 任务                 | 旧指令                        | 新指令                                                       |
+| -------------------- | ----------------------------- | ------------------------------------------------------------ |
+| 使某服务自动启动     | chkconfig --level 3 httpd on  | systemctl enable httpd.service                               |
+| 使某服务不自动启动   | chkconfig --level 3 httpd off | systemctl disable httpd.service                              |
+| 检查服务状态         | service httpd status          | systemctl status httpd.service （服务详细信息） systemctl is-active httpd.service （仅显示是否 Active) |
+| 显示所有已启动的服务 | chkconfig --list              | systemctl list-units --type=service                          |
+| 启动某服务           | service httpd start           | systemctl start httpd.service                                |
+| 停止某服务           | service httpd stop            | systemctl stop httpd.service                                 |
+| 重启某服务           | service httpd restart         | systemctl restart httpd.service                              |
+
+```shell
+systemctl list-units --type=service # 查看所有已启动的服务
+systemctl status firewalld # 查看服务当前状态
+systemctl stop firewalld
+systemctl start firewalld # 启动nfs服务
+systemctl restart firewalld # 重新启动某服务
+systemctl reload firewalld
+systemctl disable firewalld # 停止开机自启动
+systemctl enable firewalld # 设置开机自启动
+```
+
+## service
+
+> **service命令** 是Redhat Linux兼容的发行版中用来控制系统服务的实用工具，它以启动、停止、重新启动和关闭系统服务，还可以显示所有系统服务的当前状态。
+
+### 实例
+
+当修改了主机名、ip地址等信息时，经常需要把网络重启使之生效。
+
+```shell
+service network status
+配置设备：
+lo eth0
+当前的活跃设备：
+lo eth0
+
+service network restart
+正在关闭接口 eth0：                                        [  确定  ]
+关闭环回接口：                                             [  确定  ]
+设置网络参数：                                             [  确定  ]
+弹出环回接口：                                             [  确定  ]
+弹出界面 eth0：                                            [  确定  ]
+```
+
+重启mysql
+
+```shell
+service mysqld status
+mysqld (pid 1638) 正在运行...
+
+service mysqld restart
+停止 MySQL：                                               [  确定  ]
+启动 MySQL：                                               [  确定  ]
+```
+
+
+
+# export环境变量
+
+```shell
+-f：指向函数。
+-n：删除变量的导出属性。
+-p：显示全部拥有导出属性的变量。
+-pf：显示全部拥有导出属性的函数。
+-nf：删除函数的导出属性。
+--：在它之后的选项无效。
+
+```
+
+
+
 # 打包和压缩文件
 
 #### tar
 
-```
+```shell
 tar -cvf archive.tar file1 创建一个非压缩的 tarball
 tar -cvf archive.tar file1 file2 dir1 创建一个包含了 'file1', 'file2' 以及 'dir1'的档案文件
 tar -tf archive.tar 显示一个包中的内容
@@ -112,7 +237,7 @@ tar -zxvf archive.tar.gz 解压一个gzip格式的压缩包////-C<目的目录>�
 
 #### zip
 
-```
+```shell
 zip file1.zip file1 创建一个zip格式的压缩包
 zip -rS file1.zip file1 file2 dir1 将几个文件(递归处理，将指定目录下的所有文件和子目录一并处理。)和目录同时压缩成一个zip格式的压缩包 -s包含系统和隐藏文件
 unzip file1.zip 解压一个zip格式压缩包
@@ -124,7 +249,7 @@ zipinfo filename.zip 查看压缩包内文件
 
 #### 其他
 
-```
+```shell
 bunzip2 file1.bz2 解压一个叫做 'file1.bz2'的文件
 bzip2 file1 压缩一个叫做 'file1' 的文件
 gunzip file1.gz 解压一个叫做 'file1.gz'的文件
@@ -142,7 +267,7 @@ unrar x file1.rar 解压rar包
 
 #### 查看日志
 
-```
+```shell
 cat -n cpuinfo | tail -n -10 | head 20 | more#查看10行以下20行的内容
 cat -n cpuinfo | tail -n -10 | head 20 | > /home/aa.txt
 cat -n cpuint | grep keyword
@@ -151,9 +276,9 @@ cat cpuint | wc -l
 
 
 
-### 复制文件到远程主机
+# 复制文件到远程主机
 
-```
+```shell
 scp -r local_file remote_username@host:remote_folder
 scp -r remote_username@host:remote_folder local_file
 scp local_file remote_username@host:remote_file
@@ -165,7 +290,7 @@ scp -r local_folder host:remote_folder
 
 
 
-## 重要的目录
+# 重要的目录
 
 | 目录                                              | 描述                                                         |
 | ------------------------------------------------- | ------------------------------------------------------------ |
@@ -204,180 +329,67 @@ scp -r local_folder host:remote_folder
 
 
 
-### 文件的权限
-```
+# 文件的权限
+```shell
 ls -lh 显示权限
-
 ls /tmp | pr -T5 -W$COLUMNS 将终端划分成5栏显示
 
 chmod ugo+rwx directory1 设置目录的所有人(u)、群组(g)以及其他人(o)以读（r ）、写(w)和执行(x)的权限
-
 chmod go-rwx directory1 删除群组(g)与其他人(o)对目录的读写执行权限
-
 chown user1 file1 改变一个文件的所有人属性
-
 chown -R user1 directory1 改变一个目录的所有人属性并同时改变改目录下所有文件的属性
-
 chgrp group1 file1 改变文件的群组
-
 chown user1:group1 file1 改变一个文件的所有人和群组属性
-
 find / -perm -u+s 罗列一个系统中所有使用了SUID控制的文件
-
 chmod u+s /bin/file1 设置一个二进制文件的 SUID 位 - 运行该文件的用户也被赋予和所有者同样的权限
-
 chmod u-s /bin/file1 禁用一个二进制文件的 SUID位
-
 chmod g+s /home/public 设置一个目录的SGID 位 - 类似SUID ，不过这是针对目录的
-
 chmod g-s /home/public 禁用一个目录的 SGID 位
-
 chmod o+t /home/public 设置一个文件的 STIKY 位 - 只允许合法所有人删除文件
-
 chmod o-t /home/public 禁用一个目录的 STIKY 位
 ```
 
 
 
-### RPM 包 - （Fedora, Redhat及类似系统）
 
-```
-rpm -ivh package.rpm 安装一个rpm包
-
-rpm -ivh --nodeeps package.rpm 安装一个rpm包而忽略依赖关系警告
-
-rpm -U package.rpm 更新一个rpm包但不改变其配置文件
-
-rpm -F package.rpm 更新一个确定已经安装的rpm包
-
-rpm -e package_name.rpm 删除一个rpm包
-
-rpm -qa 显示系统中所有已经安装的rpm包
-
-rpm -qa | grep httpd 显示所有名称中包含 "httpd" 字样的rpm包
-
-rpm -qi package_name 获取一个已安装包的特殊信息
-
-rpm -qg "System Environment/Daemons" 显示一个组件的rpm包
-
-rpm -ql package_name 显示一个已经安装的rpm包提供的文件列表
-
-rpm -qc package_name 显示一个已经安装的rpm包提供的配置文件列表
-
-rpm -q package_name --whatrequires 显示与一个rpm包存在依赖关系的列表
-
-rpm -q package_name --whatprovides 显示一个rpm包所占的体积
-
-rpm -q package_name --scripts 显示在安装/删除期间所执行的脚本l
-
-rpm -q package_name --changelog 显示一个rpm包的修改历史
-
-rpm -qf /etc/httpd/conf/httpd.conf 确认所给的文件由哪个rpm包所提供
-
-rpm -qp package.rpm -l 显示由一个尚未安装的rpm包提供的文件列表
-
-rpm --import /media/cdrom/RPM-GPG-KEY 导入公钥数字证书
-
-rpm --checksig package.rpm 确认一个rpm包的完整性
-
-rpm -qa gpg-pubkey 确认已安装的所有rpm包的完整性
-
-rpm -V package_name 检查文件尺寸、 许可、类型、所有者、群组、MD5检查以及最后修改时间
-
-rpm -Va 检查系统中所有已安装的rpm包- 小心使用
-
-rpm -Vp package.rpm 确认一个rpm包还未安装
-
-rpm2cpio package.rpm | cpio --extract --make-directories *bin* 从一个rpm包运行可执行文件
-
-rpm -ivh /usr/src/redhat/RPMS/`arch`/package.rpm 从一个rpm源码安装一个构建好的包
-
-rpmbuild --rebuild package_name.src.rpm 从一个rpm源码构建一个 rpm 包
+# 用户和群组
+```shell
+groupadd group_name #创建一个新用户组
+groupdel group_name #删除一个用户组
+groupmod -n new_group_name old_group_name #重命名一个用户组
+useradd -c "Name Surname " -g admin -d /home/user1 -s /bin/bash user1 #创建一个属于 "admin" 用户组的用户
+useradd user1 #创建一个新用户
+userdel -r user1 #删除一个用户 ( '-r' 排除主目录)
+usermod -c "User FTP" -g system -d /ftp/user1 -s /bin/nologin user1 #修改用户属性
+usermod -G groupNmame username #将用户添加到组
+groups yuanshuai #查看当前用户所属的组
+passwd #修改口令
+passwd user1  #修改一个用户的口令 (只允许root执行)
+chage -E 2005-12-31 user1 #设置用户口令的失效期限
+pwck #检查 '/etc/passwd' 的文件格式和语法修正以及存在的用户
+grpck #检查 '/etc/passwd' 的文件格式和语法修正以及存在的群组
+newgrp group_name #登陆进一个新的群组以改变新创建文件的预设群组
 ```
 
 
 
-### DEB 包 (Debian, Ubuntu 以及类似系统)
-```
-dpkg -i package.deb 安装/更新一个 deb 包
-
-dpkg -r package_name 从系统删除一个 deb 包
-
-dpkg -l 显示系统中所有已经安装的 deb 包
-
-dpkg -l | grep httpd 显示所有名称中包含 "httpd" 字样的deb包
-
-dpkg -s package_name 获得已经安装在系统中一个特殊包的信息
-
-dpkg -L package_name 显示系统中已经安装的一个deb包所提供的文件列表
-
-dpkg --contents package.deb 显示尚未安装的一个包所提供的文件列表
-
-dpkg -S /bin/ping 确认所给的文件由哪个deb包提供
-```
-
-
-
-
-### 用户和群组
-```
-groupadd group_name 创建一个新用户组
-
-groupdel group_name 删除一个用户组
-
-groupmod -n new_group_name old_group_name 重命名一个用户组
-
-useradd -c "Name Surname " -g admin -d /home/user1 -s /bin/bash user1 创建一个属于 "admin" 用户组的用户
-
-useradd user1 创建一个新用户
-
-userdel -r user1 删除一个用户 ( '-r' 排除主目录)
-
-usermod -c "User FTP" -g system -d /ftp/user1 -s /bin/nologin user1 修改用户属性
-
-usermod -G groupNmame username//将用户添加到组
-
-groups yuanshuai查看当前用户所属的组
-
-passwd 修改口令
-
-passwd user1 修改一个用户的口令 (只允许root执行)
-
-chage -E 2005-12-31 user1 设置用户口令的失效期限
-
-pwck 检查 '/etc/passwd' 的文件格式和语法修正以及存在的用户
-
-grpck 检查 '/etc/passwd' 的文件格式和语法修正以及存在的群组
-
-newgrp group_name 登陆进一个新的群组以改变新创建文件的预设群组
-```
-
-
-
-### 关机 (系统的关机、重启以及登出 )
+# 关机 (系统的关机、重启以及登出 )
 ```
 shutdown -h now 关闭系统(1)
-
 init 0 关闭系统(2)
-
 telinit 0 关闭系统(3)
-
 shutdown -h hours:minutes & 按预定时间关闭系统
-
 shutdown -c 取消按预定时间关闭系统
-
 shutdown -r now 重启(1)
-
 reboot 重启(2)
-
 logout 注销
 ```
 
 
 
-### 查看文件内容
+# 查看文件内容
 
-```
+```shell
 cat file1 从第一个字节开始正向查看文件的内容
 tac file1 从最后一行开始反向查看一个文件的内容
 more file1 查看一个长文件的内容
@@ -387,9 +399,217 @@ head -2 file1 查看一个文件的前两行
 
 
 
-### 文本处理
+# yum
+
+基于RPM的软件包管理器
+
+### 补充说明
+
+yum命令 是在Fedora和RedHat以及SUSE中基于rpm的软件包管理器，它可以使系统管理人员交互和自动化地更新与管理RPM软件包，能够从指定的服务器自动下载RPM包并且安装，可以自动处理依赖性关系，并且一次安装所有依赖的软体包，无须繁琐地一次次下载、安装。
+
+yum提供了查找、安装、删除某一个、一组甚至全部软件包的命令，而且命令简洁而又好记。
+
+### 语法
 
 ```
+yum(选项)(参数)
+```
+
+### 选项
+
+```
+-h：显示帮助信息；
+-y：对所有的提问都回答“yes”；
+-c：指定配置文件；
+-q：安静模式；
+-v：详细模式；
+-d：设置调试等级（0-10）；
+-e：设置错误等级（0-10）；
+-R：设置yum处理一个命令的最大等待时间；
+-C：完全从缓存中运行，而不去下载或者更新任何头文件。
+```
+
+### 参数
+
+```
+install：安装rpm软件包；
+update：更新rpm软件包；
+check-update：检查是否有可用的更新rpm软件包；
+remove：删除指定的rpm软件包；
+list：显示软件包的信息；
+search：检查软件包的信息；
+info：显示指定的rpm软件包的描述信息和概要信息；
+clean：清理yum过期的缓存；
+shell：进入yum的shell提示符；
+resolvedep：显示rpm软件包的依赖关系；
+localinstall：安装本地的rpm软件包；
+localupdate：显示本地rpm软件包进行更新；
+deplist：显示rpm软件包的所有依赖关系。
+makecache:生成缓存
+```
+
+### /etc/yum.repos.d/
+
+```shell
+#运行以下命令生成缓存
+yum clean all
+yum makecache
+
+yum install              #全部安装
+yum install package1     #安装指定的安装包package1
+yum groupinsall group1   #安装程序组group1
+
+yum update               #全部更新
+yum update package1      #更新指定程序包package1
+yum check-update         #检查可更新的程序
+yum upgrade package1     #升级指定程序包package1
+yum groupupdate group1   #升级程序组group1
+
+# 检查 MySQL 是否已安装
+yum list installed | grep mysql
+yum list installed mysql*
+
+yum info installed		 #显示已经安装的所有软件包
+yum info package1      #显示安装包信息package1
+yum list               #显示所有已经安装和可以安装的程序包
+yum list package1      #显示指定程序包安装情况package1
+yum list docker-ce --showduplicates | sort -r#按版本从高到低列出软件版本
+yum groupinfo group1   #显示程序组group1信息yum search string 根据关键字string查找安装包
+yum search package_name#在rpm仓库中搜寻软件包
+
+yum remove &#124; erase package1   #删除程序包package1
+yum groupremove group1             #删除程序组group1
+yum deplist package1               #查看程序package1依赖情况
+yum clean, yum clean all (= yum clean packages; yum clean oldheaders)
+
+yum remove &#124; erase package1   #删除程序包package1
+yum groupremove group1             #删除程序组group1
+yum deplist package1               #查看程序package1依赖情况
+yum clean, yum clean all (= yum clean packages; yum clean oldheaders)
+
+yum clean packages       #清除缓存目录下的软件包
+yum clean headers        #清除缓存目录下的 headers
+yum clean oldheaders     #清除缓存目录下旧的 headers
+```
+
+
+
+# apt-get
+
+Debian Linux发行版中的APT软件包管理工具
+
+### 补充说明
+
+apt-get命令 是Debian Linux发行版中的APT软件包管理工具。所有基于Debian的发行都使用这个包管理系统。deb包可以把一个应用的文件包在一起，大体就如同Windows上的安装文件。
+
+### 语法
+
+```
+apt-get(选项)(参数)
+```
+
+### 选项
+
+```
+-c：指定配置文件。
+```
+
+### 参数
+
+- 管理指令：对APT软件包的管理操作；
+- 软件包：指定要操纵的软件包。
+
+### 实例
+
+使用apt-get命令的第一步就是引入必需的软件库，Debian的软件库也就是所有Debian软件包的集合，它们存在互联网上的一些公共站点上。把它们的地址加入，apt-get就能搜索到我们想要的软件。/etc/apt/sources.list是存放这些地址列表的配置文件，其格式如下：
+
+```
+deb web或[ftp地址] [发行版名字] main/contrib/non-[free]
+```
+
+
+我们常用的Ubuntu就是一个基于Debian的发行，我们使用apt-get命令获取这个列表，以下是我整理的常用命令：
+
+在修改/etc/apt/sources.list或者/etc/apt/preferences之后运行该命令。此外您需要定期运行这一命令以确保您的软件包列表是最新的：
+
+```shell
+apt-get update
+```
+
+```shell
+apt-get install packagename#安装一个新软件
+apt-get remove packagename#卸载一个已安装的软件包（保留配置文件）
+apt-get –purge remove packagename#卸载一个已安装的软件包（删除配置文件）
+
+apt-get autoclean apt#会把已装或已卸的软件都备份在硬盘上，所以如果需要空间的话，可以让这个命令来删除你已经删掉的软件
+apt-get clean#这个命令会把安装的软件的备份也删除，不过这样不会影响软件的使用的(从下载的软件包中清理缓存)
+apt-get upgrade#更新所有已安装的软件包
+apt-get dist-upgrade#将系统升级到新版本
+apt-get autoclean#定期运行这个命令来清除那些已经卸载的软件包的.deb文件。通过这种方式，您可以释放大量的磁盘空间。如果您的需求十分迫切，可以使用apt-get clean以释放更多空间。这个命令会将已安装软件包裹的.deb文件一并删除。大多数情况下您不会再用到这些.debs文件，因此如果您为磁盘空间不足 而感到焦头烂额，这个办法也许值得一试
+apt-get check#确认依赖的软件仓库正确
+apt-cache search nginx#返回包含所要搜索字符串的软件包名称
+apt-cache search all | grep nginx
+apt list --installed # 列出所有已安装的包
+apt show <package_name> # 显示软件包具体信息,例如：版本号，安装大小，依赖关系等等
+清理不再使用的依赖和库文件: sudo apt autoremove
+移除软件包及配置文件: sudo apt purge <package_name>
+```
+
+
+
+# dpkg
+
+Debian Linux系统上安装、创建和管理软件包
+
+### 补充说明
+
+dpkg命令 是Debian Linux系统用来安装、创建和管理软件包的实用工具。
+
+### 语法
+
+```
+dpkg(选项)(参数)
+```
+
+### 选项
+
+```
+-i：安装软件包；
+-r：删除软件包；
+-P：删除软件包的同时删除其配置文件；
+-L：显示于软件包关联的文件；
+-l：显示已安装软件包列表；
+--unpack：解开软件包；
+-c：显示软件包内文件列表；
+--confiugre：配置软件包。
+```
+
+### 参数
+
+Deb软件包：指定要操作的.deb软件包。
+
+### 实例
+
+```
+dpkg -i package.deb     # 安装包
+dpkg -r package         # 删除包
+dpkg -P package         # 删除包（包括配置文件）
+dpkg -L package         # 列出与该包关联的文件
+dpkg -l package         # 显示该包的版本
+dpkg --unpack package.deb  # 解开deb包的内容
+dpkg -S keyword            # 搜索所属的包内容
+dpkg -l                    # 列出当前已安装的包
+dpkg -c package.deb        # 列出deb包的内容
+dpkg --configure package   # 配置包
+```
+
+
+
+
+
+# 文本处理
+
+```shell
 cat file1 file2 ... | command <> file1_in.txt_or_file1_out.txt general syntax for text manipulation using PIPE, STDIN and STDOUT
 cat file1 | command( sed, grep, awk, grep, etc...) > result.txt 合并一个文件的详细说明文本，并将简介写入一个新文件中
 cat file1 | command( sed, grep, awk, grep, etc...) >> result.txt 合并一个文件的详细说明文本，并将简介写入一个已有的文件中
@@ -409,9 +629,9 @@ sed -n '1,5p;5q' example.txt 查看从第一行到第5行内容
 sed -n '5p;5q' example.txt 查看第5行
 sed -e 's/00*/0/g' example.txt 用单个零替换多个零
 
-//将当前路径下的所有文件/usr/local/etc/nginx/fastcgi.conf替换为/etc/nginx/fastcgi_params
+#将当前路径下的所有文件/usr/local/etc/nginx/fastcgi.conf替换为/etc/nginx/fastcgi_params
 
-//mac下-i后需要接''空字符串
+#mac下-i后需要接''空字符串
 
 sed -i '' "s#/usr/local/etc/nginx/fastcgi.conf#/etc/nginx/fastcgi_params#g" \`ls`
 
@@ -433,7 +653,7 @@ comm -3 file1 file2 比较两个文件的内容只删除两个文件共有的部
 
 
 ### 字符设置和文件格式转换
-```
+```shell
 dos2unix filedos.txt fileunix.txt 将一个文本文件的格式从MSDOS转换成UNIX
 unix2dos fileunix.txt filedos.txt 将一个文本文件的格式从UNIX转换成MSDOS
 recode ..HTML < page.txt > page.html 将一个文本文件转换成html
@@ -444,7 +664,7 @@ recode -l | more 显示所有允许的转换格式
 
 ### 文件系统分析
 
-```
+```shell
 badblocks -v /dev/hda1 检查磁盘hda1上的坏磁块
 fsck /dev/hda1 修复/检查hda1磁盘上linux文件系统的完整性
 fsck.ext2 /dev/hda1 修复/检查hda1磁盘上ext2文件系统的完整性
@@ -460,7 +680,7 @@ dosfsck /dev/hda1 修复/检查hda1磁盘上dos文件系统的完整性
 
 ### 初始化一个文件系统
 
-```
+```shell
 mkfs /dev/hda1 在hda1分区创建一个文件系统
 mke2fs /dev/hda1 在hda1分区创建一个linux ext2的文件系统
 mke2fs -j /dev/hda1 在hda1分区创建一个linux ext3(日志型)的文件系统
@@ -474,14 +694,14 @@ mkswap /dev/hda3 创建一个swap文件系统
 ### SWAP文件系统
 ```
 mkswap /dev/hda3 创建一个swap文件系统
-swapon /dev/hda3 启用一个新的swap文件系统
+swapon /dev/hda3 启用一个新的swap文件系统shell
 swapon /dev/hda2 /dev/hdb3 启用两个swap分区
 ```
 
 
 
 ### 备份
-```
+```shell
 dump -0aj -f /tmp/home0.bak /home 制作一个 '/home' 目录的完整备份dump -1aj -f /tmp/home0.bak /home 制作一个 '/home' 目录的交互式备份
 restore -if /tmp/home0.bak 还原一个交互式备份
 rsync -rogpav --delete /home /tmp 同步两边的目录
@@ -519,7 +739,7 @@ dd if=/dev/hdc | md5sum 校验一个设备的md5sum编码，例如一张 CD
 
 
 ### 网络 - （以太网和WIFI无线）
-```
+```shell
 ifconfig eth0 显示一个以太网卡的配置
 ifup eth0 启用一个 'eth0' 网络设备
 ifdown eth0 禁用一个 'eth0' 网络设备
@@ -557,7 +777,7 @@ mount -t smbfs -o username=user,password=pass //WinClient/share /mnt/share mount
 
 
 ### 挂载一个文件系统
-```
+```shell
 mount /dev/hda2 /mnt/hda2 挂载一个叫做hda2的盘 - 确定目录 '/ mnt/hda2' 已经存在
 umount /dev/hda2 卸载一个叫做hda2的盘 - 先从挂载点 '/ mnt/hda2' 退出
 fuser -km /mnt/hda2 当设备繁忙时强制卸载

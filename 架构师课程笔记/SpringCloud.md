@@ -499,6 +499,72 @@ Nacos 具有如下特性:
 
 > Spring Cloud Alibaba 致力于提供微服务开发的一站式解决方案，Sentinel 作为其核心组件之一，具有熔断与限流等一系列服务保护功能，本文将对其用法进行详细介绍。
 
+## [使用Nacos作为注册中心](http://www.macrozheng.com/#/cloud/nacos?id=使用nacos作为注册中心)
+
+### [安装并运行Nacos](http://www.macrozheng.com/#/cloud/nacos?id=安装并运行nacos)
+
+- 我们先从官网下载Nacos，这里下载的是`nacos-server-1.1.4.zip`文件，下载地址：https://github.com/alibaba/nacos/releases
+- 配置`JAVA_HOME`环境变量，不配置会导致无法运行Nacos；
+
+```bash
+JAVA_HOME=D:\developer\env\Java\jdk1.8.0_91Copy to clipboardErrorCopied
+```
+
+- 解压安装包，直接运行`bin`目录下的`startup.cmd`；
+- 运行成功后，访问`http://localhost:8848/nacos`可以查看Nacos的主页，默认账号密码都是nacos。
+
+1. 引入依赖
+2. 配置文件application.yml
+3. @EnableDiscoveryClient
+
+## [使用Nacos作为配置中心](http://www.macrozheng.com/#/cloud/nacos?id=使用nacos作为配置中心)
+
+1. 依赖
+
+```xml
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+</dependency>
+```
+
+2. 配置文件bootstrap.yml
+
+### [在Nacos中添加配置](http://www.macrozheng.com/#/cloud/nacos?id=在nacos中添加配置)
+
+- 我们先来讲下Nacos中的dataid的组成格式及与SpringBoot配置文件中的属性对应关系：
+
+```bash
+${spring.application.name}-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}Copy to clipboardErrorCopied
+```
+
+- 比如说我们现在要获取应用名称为`nacos-config-client`的应用在`dev`环境下的`yaml`配置，dataid如下：
+
+```bash
+nacos-config-client-dev.yaml
+```
+
+动态刷新配置
+
+@RefreshScope
+
+### 命名空间
+
+用于配置隔离比如: dev , test , prod空间, 
+
+也可以为每个微服务都配置命名空间, coupon, product, member
+
+配置文件与配置中心有相同配置时**优先配置中心的配置**
+
+bootstrap.properties添加命名空间配置
+
+```properties
+spring.cloud.nacos.config.namespace=
+spring.cloud.nacos.config.group=
+```
+
+**每个微服务创建自己的命名空间, 使用配置分组分环境**
+
 
 
 # [Sentinel简介](http://www.macrozheng.com/#/cloud/sentinel?id=sentinel简介)
