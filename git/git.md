@@ -1,3 +1,5 @@
+git安装配置使用https://gitee.com/help/articles/4104
+
 git config --list
 git config --global user.name 'name'
 git config --global user.email '...@qq.com'
@@ -7,6 +9,16 @@ git config --local user.name 'name'
 git add .
 git add filenames
 git commit -m "提交描述"
+
+## 配置免密登录
+
+1. 进入 git bash；使用：ssh-keygen -t rsa -C "xxxxx@xxxxx.com"命令。 连续三次回车。 一般用户目录下会有id_rsa和id_rsa.pub 或者 cat ~/.ssh/id_rsa.pub 
+
+2. 登录进入 gitee，在设置里面找到 SSH KEY 将.pub 文件的内容粘贴进去 
+
+3. 使用 ssh -T git@gitee.com 测试是否成功即可
+
+> 参考： https://gitee.com/help/articles/4181#article-header0
 
 #### (直接丢弃工作区的修改, 危险操作)回到最近一次git commit或git add时的状态,也就是暂存区有该文件则从暂存区恢复,没有就从版本库恢复
 
@@ -48,8 +60,9 @@ git remote get-url origin
 git remote add origin ssh://root@192.168.1.106:22/srv/buyplus.git
 
 mv .env.txt .env
-ssh-keygen -t rsa -b 4096 -C "yangys@hspaces.cn"
+
 ssh-keygen -t rsa -C "your_email@youremail.com"
+ssh-keygen -t rsa -b 4096 -C "yangys@hspaces.cn"
 clip < ~/.ssh/id_rsa.pub
 cat ~/.ssh/id_rsa.pub | pbcopy
 git clone ssh://root@github.hspaces.cn:22222/php/laravel_template.git

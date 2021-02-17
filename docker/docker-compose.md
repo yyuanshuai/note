@@ -74,40 +74,50 @@ services:
       - 27017:27017
 ```
 
+```
+docker-compose -f docker-compose-env.yml config
+* > 验证 Compose 文件格式是否正确，若正确则显示配置，若格式错误显示错误原因。
 
-* docker-compose -f docker-compose-env.yml config
-    
-    * > 验证 Compose 文件格式是否正确，若正确则显示配置，若格式错误显示错误原因。
-* docker-compose -f docker-compose-env.yml down
-    
-    * > 此命令将会停止 up 命令所启动的容器，并移除网络
-* docker-compose -f docker-compose-env.yml up -d
-    * > 该命令十分强大，它将尝试自动完成包括构建镜像，（重新）创建服务，启动服务，并关联服务相关容器的一系列操作。
-    * > 大部分时候都可以直接通过该命令来启动一个项目。
-    * > 如果使用 docker-compose up -d，将会在后台启动并运行所有的容器。一般推荐生产环境下使用该选项。
-* docker-compose -f docker-compose-env.yml stop
-    
-    * > 停止已经处于运行状态的容器，但不删除它。
-* docker-compose -f docker-compose-env.yml start
-    
-    * > 启动已经存在的服务容器。
-* docker-compose -f docker-compose-env.yml restart
-    
-    * > 重启项目中的服务。
-* docker-compose rm
-    
-    * > 删除所有（停止状态的）服务容器。推荐先执行 docker-compose stop 命令来停止容器。
-* docker-compose build
-    
-    * > 构建（重新构建）项目中的服务容器。
-* docker-compose images
-* docker-compose ps
-* docker-compose pause
-* docker-compose unpause
-* docker-compose port
-* docker-compose top
-* docker-compose logs
-* docker-compose kill
-* docker-compose exec
+docker-compose -f docker-compose-env.yml down
+* > 此命令将会停止 up 命令所启动的容器，并移除网络
+
+docker-compose -f docker-compose-env.yml up -d
+* > 该命令十分强大，它将尝试自动完成包括构建镜像，（重新）创建服务，启动服务，并关联服务相关容器的一系列操作。
+* > 大部分时候都可以直接通过该命令来启动一个项目。
+* > 如果使用 docker-compose up -d，将会在后台启动并运行所有的容器。一般推荐生产环境下使用该选项。
+
+docker-compose -f docker-compose-env.yml stop
+* > 停止已经处于运行状态的容器，但不删除它。
+
+docker-compose -f docker-compose-env.yml start
+* > 启动已经存在的服务容器。
+
+docker-compose -f docker-compose-env.yml restart
+* > 重启项目中的服务。
+
+docker-compose rm
+* > 删除所有（停止状态的）服务容器。推荐先执行 docker-compose stop 命令来停止容器。
+
+docker-compose build
+* > 构建（重新构建）项目中的服务容器。
+
+docker-compose images
+
+docker-compose ps
+
+docker-compose pause
+
+docker-compose unpause
+
+docker-compose port
+
+docker-compose top
+
+docker-compose logs
+
+docker-compose kill
+
+docker-compose exec
+```
 
 
