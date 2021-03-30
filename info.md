@@ -1,3 +1,47 @@
+D:/program/nacos/bin/startup.cmd
+
+http://localhost:8848/nacos/
+
+D:/program/redis/redis-server.exe redis.windows.conf
+
+运行bin目录下的elasticsearch.bat启动Elasticsearch服务。
+D:/program/elasticsearch-7.6.2/bin/elasticsearch.bat
+
+D:/program/kibana-7.6.2-windows-x86_64/bin/kibana.bat
+运行bin目录下的kibana.bat，启动Kibana服务；
+打开Kibana的用户界面，访问地址：http://localhost:5601
+
+D:/program/logstash-7.6.2/bin/logstash -f logstash.conf
+
+D:/program/mongoDB-4.4/bin/mongo.exe
+双击mongo.exe可以运行MongoDB自带客户端，操作MongoDB；
+
+下载完成后解压，双击robo3t.exe即可使用；
+
+D:/program/rabbitmq-3.7.14/rabbitmq_server-3.7.14/sbin/rabbitmq-plugins enable rabbitmq_management
+访问地址查看是否安装成功：http://localhost:15672/
+
+
+启动网关服务mall-gateway，直接运行MallGatewayApplication的main函数即可；
+
+启动认证中心mall-auth，直接运行MallAuthApplication的main函数即可；
+
+启动后台管理服务mall-admin，直接运行MallAdminApplication的main函数即可；
+
+启动前台服务mall-portal，直接运行MallPortalApplication的main函数即可；
+
+启动搜索服务mall-search，直接运行MallSearchApplication的main函数即可；
+
+启动监控中心mall-monitor，直接运行MallMonitorApplication的main函数即可；
+
+运行完成后可以通过监控中心查看监控信息，账号密码为macro:123456：http://localhost:8101
+
+运行完成后可以直接通过如下地址访问API文档：http://localhost:8201/doc.html
+
+日志收集系统信息，访问地址：http://localhost:5601
+
+
+
 07554200750119@163.gd
 JKDZSVXM
 

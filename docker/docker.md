@@ -150,6 +150,7 @@ docker kill -s KILL mynginx
 ### 暂停容器中所有的进程。 恢复容器中所有的进程。
 docker pause [OPTIONS] CONTAINER [CONTAINER...]
 docker unpause [OPTIONS] CONTAINER [CONTAINER...]
+
 ### docker create : 创建一个新的容器但不启动它
 docker create [OPTIONS] IMAGE [COMMAND] [ARG...]
 
@@ -201,23 +202,16 @@ $docker stop $(docker ps -a -q) && docker system prune --all --force
 
 ### mysql
 
-```
+```shell
 docker pull mysql:5.7
-
 docker run -p 3306:3306 \
 --restart=always \
 --name mysql \
 -e MYSQL_ROOT_PASSWORD=root \
--v ~/docker/docker-volume/mysql/log:/var/log/mysql \
--v ~/docker/docker-volume/mysql/data:/var/lib/mysql \
--v ~/docker/docker-volume/mysql/conf:/etc/mysql \
+-v /mydata/gulimall/mysql/log:/var/log/mysql \
+-v /mydata/gulimall/mysql/data:/var/lib/mysql \
+-v /mydata/gulimall/mysql/conf:/etc/mysql \
 -d mysql:5.7 mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-
-​```windows
-mkdir -p D:/mydocker/docker-volume/mysql/data D:/mydocker/docker-volume/mysql/conf D:/mydocker/docker-volume/mysql/log
-
-docker run -d -p 3306:3306 --name mysql -e MYSQL_ROOT_PASSWORD=root -v D:/mydocker/docker-volume/mysql/data:/var/lib/mysql -v D:/mydocker/docker-volume/mysql/conf:/etc/mysql -v D:/mydocker/docker-volume/mysql/log:/var/log/mysql mysql:5.7 mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-​```
 ```
 
 ```
@@ -245,15 +239,15 @@ skip-name-resolve：跳过域名解析
 
 ### Redis
 
-```
+```shell
 docker pull redis
-mkdir -p /mydata/redis/conf
-touch /mydata/redis/conf/redis.conf
+mkdir -p /mydata/gulimall/redis/conf
+touch /mydata/gulimall/redis/conf/redis.conf
 
 docker run -p 6379:6379 --name redis \
 --restart=always \
--v /mydata/redis/data:/data \
--v /mydata/redis/conf/redis.conf:/etc/redis/redis.conf \
+-v /mydata/gulimall/redis/data:/data \
+-v /mydata/gulimall/redis/conf/redis.conf:/etc/redis/redis.conf \
 -d redis redis-server /etc/redis/redis.conf
 
 vi /mydata/redis/conf/redis.conf
@@ -264,11 +258,6 @@ appendonly yes
 #redis4.0 自描述文件：
 #https://raw.githubusercontent.com/antirez/redis/4.0/redis.conf
 
-​```备用
-docker run -p 6379:6379 --name redis -v ~/docker/docker-volume/redis/data:/data \
--v ~/docker/docker-volume/redis/conf/redis.conf:/etc/redis/redis.conf \
--d redis redis-server /etc/redis/redis.conf
-​```
 #使用 redis 镜像执行 redis-cli 命令连接
 docker exec -it redis redis-cli
 ```
@@ -286,9 +275,9 @@ docker run -p 80:80 --name nginx -d nginx:1.10
 执行命令删除原容器：docker rm $ContainerId
 创建新的 nginx；执行以下命令
 docker run -p 80:80 --name nginx \
--v /mydata/nginx/html:/usr/share/nginx/html \
--v /mydata/nginx/logs:/var/log/nginx \
--v /mydata/nginx/conf:/etc/nginx \
+-v /mydata/gulimall/nginx/html:/usr/share/nginx/html \
+-v /mydata/gulimall/nginx/logs:/var/log/nginx \
+-v /mydata/gulimall/nginx/conf:/etc/nginx \
 -d nginx:1.10
 docker run -p 80:80 --name nginx \
 -v /home/vagrant/docker/docker-volume/nginx/html:/usr/share/nginx/html \
@@ -306,10 +295,16 @@ docker run -it -p 80:80 --name nginx -v ~/docker/docker-volume/nginx/nginx.conf:
 
 ### RabbitMQ
 
-```
+```shell
+docker run -d --name rabbitmq -p 5671:5671 -p 5672:5672 -p 4369:4369 -p 25672:25672 -p 15671:15671 -p 15672:15672 rabbitmq:management
+#4369, 25672 (Erlang发现&集群端口)
+#5672, 5671 (AMQP端口 数据通信端口)
+#15672 (web管理后台端口)
+#61613, 61614 (STOMP协议端口)
+#1883, 8883 (MQTT协议端口)
+#https://www.rabbitmq.com/networking.html
+
 docker run --name rabbitmq -d -p 15672:15672 -p 5672:5672 rabbitmq:3.8-management
-#-p:指定容器内部端口号与宿主机之间的映射，rabbitMq默认要使用15672为其web端界面访问时端口，5672为数据通信端口
-#-management:表示web有管理界面插件
 ```
 
 ### ElasticSearch&&Kibana
@@ -326,16 +321,15 @@ docker run --name elasticsearch -p 9200:9200 -p 9300:9300 \
 --restart=always \
 -e "discovery.type=single-node" \
 -e ES_JAVA_OPTS="-Xms64m -Xmx512m" \
--v /mydata/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml \
--v /mydata/elasticsearch/data:/usr/share/elasticsearch/data \
--v /mydata/elasticsearch/plugins:/usr/share/elasticsearch/plugins \
+-v /mydata/gulimall/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml \
+-v /mydata/gulimall/elasticsearch/data:/usr/share/elasticsearch/data \
+-v /mydata/gulimall/elasticsearch/plugins:/usr/share/elasticsearch/plugins \
 -d elasticsearch:7.4.2
 #以后再外面装好插件重启即可；
 #特别注意：
 #-e ES_JAVA_OPTS="-Xms64m -Xmx256m" \ 测试环境下，设置 ES 的初始内存和最大内存，否则导致过大启动不了 ES
 
-docker run --name kibana -e ELASTICSEARCH_HOSTS=http://192.168.56.10:9200 -p 5601:5601 \
--d kibana:7.4.2
+docker run --name kibana -e ELASTICSEARCH_HOSTS=http://192.168.56.10:9200 -p 5601:5601 -d kibana:7.4.2
 #http://192.168.56.10:9200 一定改为自己虚拟机的地址
 
 #安装ik分词

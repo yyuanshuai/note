@@ -2,6 +2,10 @@
 
 Eureka：服务注册与发现，用于服务管理。
 
+getway
+
+
+
 Feign： web调用客户端，能够简化HTTP接口的调用。
 
 Ribbon：基于客户端的负载均衡。
@@ -15,6 +19,14 @@ Config：配置中心，分布式配置管理。
 Sleuth：服务链路追踪
 
 Admin：健康管理
+
+
+
+nacos
+
+seata
+
+sentinel
 
 
 

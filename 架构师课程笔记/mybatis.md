@@ -4,21 +4,72 @@ https://mybatis.org/mybatis-3/zh/sqlmap-xml.html
 
 # 关联查询
 
-## 一对多
+#### 关联的嵌套结果映射
+
+```xml
+<select id="selectBlog" resultMap="blogResult">
+  select
+    B.id            as blog_id,
+    B.title         as blog_title,
+    B.author_id     as blog_author_id,
+    A.id            as author_id,
+    A.username      as author_username,
+    A.password      as author_password,
+    A.email         as author_email,
+    A.bio           as author_bio
+  from Blog B left outer join Author A on B.author_id = A.id
+  where B.id = #{id}
+</select>
+```
+
+```xml
+<resultMap id="blogResult" type="Blog">
+  <id property="id" column="blog_id" />
+  <result property="title" column="blog_title"/>
+  <association property="author" column="blog_author_id" javaType="Author" resultMap="authorResult"/>
+</resultMap>
+
+<resultMap id="authorResult" type="Author">
+  <id property="id" column="author_id"/>
+  <result property="username" column="author_username"/>
+  <result property="password" column="author_password"/>
+  <result property="email" column="author_email"/>
+  <result property="bio" column="author_bio"/>
+</resultMap>
+```
 
 
 
-## 多对多
+#### 集合的嵌套结果映射
 
+```xml
+<select id="selectBlog" resultMap="blogResult">
+  select
+  B.id as blog_id,
+  B.title as blog_title,
+  B.author_id as blog_author_id,
+  P.id as post_id,
+  P.subject as post_subject,
+  P.body as post_body,
+  from Blog B
+  left outer join Post P on B.id = P.blog_id
+  where B.id = #{id}
+</select>
+```
 
+```xml
+<resultMap id="blogResult" type="Blog">
+  <id property="id" column="blog_id" />
+  <result property="title" column="blog_title"/>
+  <collection property="posts" ofType="Post" resultMap="blogPostResult" columnPrefix="post_"/>
+</resultMap>
 
-条件查询
-
-
-
-查询记录条数
-
-
+<resultMap id="blogPostResult" type="Post">
+  <id property="id" column="id"/>
+  <result property="subject" column="subject"/>
+  <result property="body" column="body"/>
+</resultMap>
+```
 
 
 
@@ -46,7 +97,7 @@ https://mybatis.org/mybatis-3/zh/sqlmap-xml.html
 
 ## 参数
 
-```
+```xml
 <select id="selectUsers" resultType="User">
   select id, username, password
   from users
@@ -56,7 +107,7 @@ https://mybatis.org/mybatis-3/zh/sqlmap-xml.html
 
 上面的这个示例说明了一个非常简单的命名参数映射。鉴于参数类型（parameterType）会被自动设置为 `int`，这个参数可以随意命名。原始类型或简单数据类型（比如 `Integer` 和 `String`）因为没有其它属性，会用它们的值来作为参数。 然而，如果传入一个复杂的对象，行为就会有点不一样了。比如：
 
-```
+```xml
 <insert id="insertUser" parameterType="User">
   insert into users (id, username, password)
   values (#{id}, #{username}, #{password})
@@ -79,7 +130,7 @@ ORDER BY ${columnName}
 
 当 SQL 语句中的元数据（如表名或列名）是动态生成的时候，字符串替换将会非常有用。 举个例子，如果你想 `select` 一个表任意一列的数据时，不需要这样写：
 
-```
+```java
 @Select("select * from user where id = #{id}")
 User findById(@Param("id") long id);
 
@@ -675,3 +726,43 @@ public interface Mapper {
 **提示** 可以使用 Apache Velocity 作为动态语言，更多细节请参考 MyBatis-Velocity 项目。
 
 你前面看到的所有 xml 标签都由默认 MyBatis 语言提供，而它由语言驱动 `org.apache.ibatis.scripting.xmltags.XmlLanguageDriver`（别名为 `xml`）所提供。
+
+# 缓存
+
+mybatis默认开启一级缓存
+
+一级缓存是会话缓存--sqlsession级别的, 只有同一个sqlsession才会用到一级缓存
+
+二级缓存设置里是默认开启的(enablecache=true), 是以namespace级别来查询的, 也就是mapper来的
+
+二级缓存需要在xml文件里加上<cache ... ></cache>
+
+属性有
+
+```
+eviction="FIFO"//缓存清除策略,   LRU/FIFO/SOFT/WEAK
+flushInterval="60000"//缓存刷新时间
+size="512"//缓存数量
+readOnly="true"//只读的缓存会给所有调用者返回缓存对象的相同实例。 因此这些对象不能被修改。这就提供了可观的性能提升。而可读写的缓存会（通过序列化）返回缓存对象的拷贝。 速度上会慢一些，但是更安全，因此默认值是 false。
+```
+
+若开启二级缓存, 当一级缓存会话关闭时会将缓存数据同步到二级缓存, 此时二级缓存生效
+
+当数据发生增删改时, 缓存数据会被清除
+
+### 为什么不推荐使用二级缓存
+
+[聊聊MyBatis缓存机制](https://tech.meituan.com/2018/01/19/mybatis-cache.html)
+
+1. MyBatis的二级缓存相对于一级缓存来说，实现了`SqlSession`之间缓存数据的共享，同时粒度更加的细，能够到`namespace`级别，通过Cache接口实现类不同的组合，对Cache的可控性也更强。
+2. MyBatis在多表查询时，被关联的表, 如果被修改了, 那么此时的多表查询中, 被关联的表的数据还是旧数据, 脏数据，有设计上的缺陷，安全使用二级缓存的条件比较苛刻。
+3. 在分布式环境下，由于默认的MyBatis Cache实现都是基于本地的，分布式环境下必然会出现读取到脏数据，需要使用集中式缓存将MyBatis的Cache接口实现，有一定的开发成本，直接使用Redis、Memcached等分布式缓存可能成本更低，安全性也更高。
+
+
+
+
+
+
+
+# 运行原理
+

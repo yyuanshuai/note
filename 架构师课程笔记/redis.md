@@ -1,3 +1,5 @@
+# [分布式之redis复习精讲](https://www.cnblogs.com/rjzheng/p/9096228.html)
+
 # [什么是分布式锁？](https://juejin.cn/post/6844903616667451399)
 
 # [分布式之抉择分布式锁](https://www.cnblogs.com/rjzheng/p/9310976.html)
@@ -7,6 +9,22 @@
 # [从零单排学Redis](https://www.cnblogs.com/Java3y/p/10030604.html)
 
 # [分布式之缓存击穿](https://www.cnblogs.com/rjzheng/p/8908073.html)
+
+[从零单排学Redis【青铜】](https://mp.weixin.qq.com/s?__biz=MzI4Njg5MDA5NA==&mid=2247484359&idx=1&sn=0994c6246990b7ad42a2d3f294042316&chksm=ebd742c6dca0cbd0a826ace13f4d4eeff282052f4a97b31654ef1b3b32f991374f5c67a45ae9&token=1834317504&lang=zh_CN#rd)
+
+[你的Redis怎么持久化的](https://www.cnblogs.com/rjzheng/p/10990713.html)
+
+[那些年用过的redis集群架构(含面试解析)](https://www.cnblogs.com/rjzheng/p/10360619.html)
+
+[谈谈redis的热key问题如何解决](https://www.cnblogs.com/rjzheng/p/10874537.html)
+
+[分布式之数据库和缓存双写一致性方案解析](https://www.cnblogs.com/rjzheng/p/9041659.html)
+
+[分布式之缓存击穿](https://www.cnblogs.com/rjzheng/p/8908073.html)
+
+# [史上最全Redis高可用技术解决方案大全](https://juejin.cn/post/6844903664247635976)
+
+
 
 # redis
 
@@ -64,6 +82,8 @@ auth password
 ```
 set key value
 get key
+mset k1 1 k2 2 k3 3
+mget k1 k2 k3
 append
 setrange
 getrange
@@ -105,7 +125,7 @@ BITCOUNT destkey 0 -1#统计人数
 
 
 
-## List
+# List
 
 ```redis
 LPUSH key value1 [value2] #
@@ -128,8 +148,10 @@ LTRIM key start stop #两端的数据移除
 # hash
 
 ```
-HSET key 
-HGET
+HSET proson id 1
+HGET proson id 
+HMSET proson name zs age 18
+HGETALL proson
 HDEL
 HGETALL
 HKEYS
@@ -1504,7 +1526,7 @@ replica-read-only yes
 repl-diskless-sync no
 repl-backlog-size 1mb
 min-replicas-to-write 3
-min-replicas-max-lag 10
+min-replicas-max-lag 10 
 
 ```
 
@@ -2138,33 +2160,22 @@ stringRedisTemplate.convertAndSend("ooxx", "hello");
 
 # 常见问题
 
-[你的Redis怎么持久化的](https://www.cnblogs.com/rjzheng/p/10990713.html)
 
-[那些年用过的redis集群架构(含面试解析)](https://www.cnblogs.com/rjzheng/p/10360619.html)
-
-[谈谈redis的热key问题如何解决](https://www.cnblogs.com/rjzheng/p/10874537.html)
-
-[分布式之数据库和缓存双写一致性方案解析](https://www.cnblogs.com/rjzheng/p/9041659.html)
-
-[分布式之缓存击穿](https://www.cnblogs.com/rjzheng/p/8908073.html)
 
 ## 缓存穿透
 
-**缓存穿透**，即黑客故意去请求缓存中不存在的数据，导致所有的请求都怼到数据库上，从而数据库连接异常。
+**缓存穿透**，用户不断的发起缓存和数据库均不存在的数据请求, 导致数据库压力过大. 即黑客故意去请求缓存中不存在的数据，导致所有的请求都怼到数据库上，从而数据库连接异常。
+
+**前端后端进行初步参数校验**
+
+**从网关层NGINX增加配置项, 对单个IP每秒访问次数超出阈值的IP都拉黑**
+
 **解决方案**:
-(一)利用互斥锁，缓存失效的时候，先去获得锁，得到锁了，再去请求数据库。没得到锁，则休眠一段时间重试
-(二)采用异步更新策略，无论key是否取到值，都直接返回。value值中维护一个缓存失效时间，缓存如果过期，异步起一个线程去读数据库，更新缓存。需要做**缓存预热**(项目启动前，先加载缓存)操作。
-(三)提供一个能迅速判断请求是否有效的拦截机制，比如，利用布隆过滤器，内部维护一系列合法有效的key。迅速判断出，请求所携带的Key是否合法有效。如果不合法，则直接返回。
 
-概念: 用户不断的发起缓存和数据库均不存在的数据请求, 导致数据库压力过大, db会崩
+1. 提供一个能迅速判断请求是否有效的拦截机制，比如，布隆过滤器, 他的原理也很简单, 就是利用高效的数据结构和算法快速判断出你这个key是否在数据库中存在, 不存在你return就好了, 存在就去查DB刷新KV再return
 
-解决办法: 
+2. 缓存空值, 设置过期时间
 
-1. 增加参数校验
-2. 从网关层NGINX增加配置项, 对单个IP每秒访问次数超出阈值的IP都拉黑
-3. 布隆过滤器也能很好的防治缓存穿透的发生, 他的原理也很简单, 就是利用高效的数据结构和算法快速判断出你这个key是否在数据库中存在, 不存在你return就好了, 存在就去查DB刷新KV再return
-
-过滤器->将所有数据经过m个映射函数分布成bit,下面介绍
 
 ### 布隆过滤器
 
@@ -2198,11 +2209,70 @@ stringRedisTemplate.convertAndSend("ooxx", "hello");
 
 一个key非常热点, 在不停的扛着大并发, 大并发集中对这个点进行访问, 当这个key在失效的瞬间, 持续的大并发就穿破缓存, 直接请求数据库, 就像在一个完好无锁的桶上凿一个洞
 
-解决办法: 
+四种解决方案：没有最佳只有最合适
 
-1. 设置热点数据永不过期
-2. 增加互斥锁
-3. 设置不同的失效时间比如随机设置缓存的失效时间。
+1. 简单分布式互斥锁--缓存失效的时,先去setnx一个值,此时只会有一个线程成功,然后该线程去读数据库,其余线程休眠重试.
+
+    > 优点: 1. 保证一致性 2. 思路简单
+    >
+    > 缺点: 1) 代码复杂度增大 2) 存在死锁的风险 3) 存在线程池阻塞的风险
+
+    ```java
+    public String get(key) {
+        String value = redis.get(key);
+        if (value == null) { //代表缓存值过期
+            //设置3min的超时，防止del操作失败的时候，下次缓存过期一直不能load db
+            if (redis.setnx(key_mutex, 1, 3 * 60) == 1) {  //代表设置成功
+                value = db.get(key);
+                redis.set(key, value, expire_secs);
+                redis.del(key_mutex);
+            } else {
+                //这个时候代表同时候的其他线程已经load db并回设到缓存了，这时候重试获取缓存值即可
+                //这里也可以改为直接返回null, 让用户重试
+                sleep(50);
+                get(key);  //重试
+            }
+        } else {
+            return value;
+        }
+    }
+    ```
+
+2. 设置热点数据"永不过期", 然后把过期时间存在value里, 每次取出来时判断是否过期, 过期通过一个后台的异步线程进行缓存的构建，也就是“逻辑”过期.
+
+    > 优点: 异步构建缓存，不会阻塞线程池
+    >
+    > 缺点: 1. 不保证一致性 2. 代码复杂度增大(每个value都要维护一个timekey) 3. 占用一定的内存空间(每个value都要维护一个timekey)。
+    >
+    > 构建缓存时候，其余线程(非构建缓存的线程)可能访问的是老数据, 但是对于一般的互联网功能来说这个还是可以忍受。
+
+    ```java
+    String get(final String key) {  
+        V v = redis.get(key);  
+        String value = v.getValue();  
+        long timeout = v.getTimeout();  
+        if (v.timeout <= System.currentTimeMillis()) {  
+            // 异步更新后台异常执行  
+            threadPool.execute(new Runnable() {  
+                public void run() {  
+                    String keyMutex = "mutex:" + key;  
+                    if (redis.setnx(keyMutex, "1")) {  
+                        // 3 min timeout to avoid mutex holder crash  
+                        redis.expire(keyMutex, 3 * 60);  
+                        String dbValue = db.get(key);  
+                        redis.set(key, dbValue);  
+                        redis.delete(keyMutex);  
+                    }  
+                }  
+            });  
+        }  
+        return value;
+    }
+    ```
+
+3. 资源隔离组件
+
+    > 缺点: 部分访问存在降级策略。
 
 
 
@@ -2210,23 +2280,17 @@ stringRedisTemplate.convertAndSend("ooxx", "hello");
 
 **缓存雪崩**，即缓存同一时间大面积的失效，这个时候又来了一波请求，结果请求都怼到数据库上，从而导致数据库连接异常。
 **解决方案**:
-(一)给缓存的失效时间，加上一个随机值，避免集体失效。
-(二)使用互斥锁，但是该方案吞吐量明显下降了。
-(三)双缓存。我们有两个缓存，缓存A和缓存B。缓存A的失效时间为20分钟，缓存B不设失效时间。自己做缓存预热操作。然后细分以下几个小点
 
-- I 从缓存A读数据库，有则直接返回
-- II A没有数据，直接从B读数据，直接返回，并且异步启动一个更新线程。
-- III 更新线程同时更新缓存A和缓存B。
+1. 给缓存加上一个随机失效时间，避免大面积同时失效。
+2. 使用互斥锁，但是该方案吞吐量明显下降了。
+3. 双缓存。我们有两个缓存，缓存A和缓存B。缓存A的失效时间为20分钟，缓存B不设失效时间。自己做缓存预热操作。然后细分以下几个小点
 
-大面积的缓存失效, 打崩了DB
+	- I 从缓存A读数据库，有则直接返回
+	- II A没有数据，直接从B读数据，直接返回，并且异步启动一个更新线程。
+	- III 更新线程同时更新缓存A和缓存B。
+4. 实现熔断限流机制，对系统进行负载能力控制
 
-同一时间大面积失效, 那一瞬间Redis跟没有一样, 那这个数量级别的请求直接打到数据库几乎是灾难性的, 你想想如果打挂的是一个用户服务的库, 那其他依赖的库所有的接口几乎都会抱错, 如果没做熔断等策略基本上就是瞬间挂一片的节奏
 
-解决办法: 
-
-1. 批量网Redis存数据的时候, 把每个key的失效时间都加个随机值就好了, 这样可以保证数据不会再同一时间大面积失效
-2. Redis是集群部署, 将热点数据均匀分布在不同的Redis库中也能避免全部失效问题
-3. 设置热点数据永不过期, 有更新操作就更新到缓存
 
 ## 缓存一致性(双写一致性)
 
@@ -2253,10 +2317,6 @@ stringRedisTemplate.convertAndSend("ooxx", "hello");
 其他方法，比如利用队列，将set方法变成串行访问也可以。总之，灵活变通。
 
 
-
-# Redis作为数据库/缓存的区别
-
-1. 
 
 
 

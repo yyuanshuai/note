@@ -5,18 +5,25 @@
 ### 1. 数据库操作
 
 * 登录数据库：
+  
   > mysql -uroot -proot
 * 创建数据库:
+  
   > create database `databasename` charset=utf8mb4
 * 查看所有数据库：
+  
   > show databases
 * 选择数据库：
+  
   > use `databasename`;
 * 显示你创建数据库时的信息
+  
   > show create database `databasename`
 * 删除数据库：
+  
   > drop database `databasename`
 * 显示当前所在库及其库表
+  
   > show tables
 * 查看当前mysql连接情况
   > show processlist
@@ -39,30 +46,41 @@
     ```
 
 * 查看表的定义：
+  
   > desc 表名
 * 查看表定义（详细）：
+  
   > show create table users \G
 * 删除表：
+  
   > drop table users
 * 修改表字段：
+  
   > alter table users modify job varchart(255);
 * 添加表字段：
+  
   > alter table users add avatar varchart(255) after resume;
 * 删除表字段：
+  
   > alter table users drop sex;
 * 修改列名
+  
   > alter table users change name new_name varchart(255);
 * 修改表名
+  
   > alter table users rename to employee;
 
-## 数据操纵语句(DML)
+## 数据操z纵语句(DML)
 
 ### 1. 插入记录
 * 指定字段插入
+  
   > INSERT INTO table_name ( field1, field2,...fieldN ) VALUES ( value1, value2,...valueN );
 * 指定表插入表
+  
   > INSERT INTO table_name ( field1, field2,...fieldN ) SELECT ( value1, value2,...valueN ) FROM TABLE_NAME;
 * 批量插入数据
+  
   > INSERT INTO table_name values(1,'dept1'),(2,'dept2')
 
 ### 2. 修改记录
@@ -73,54 +91,73 @@
 
 ### 4. 查询记录
 * 查询所有记录
+  
   > select * from users
 * 查询不重复的记录：
+  
   > select distinct deptno from emp
 * 条件查询：
+  
   > select * from emp where deptno=1 and sal<3000
 * 排序和限制：
+  
   > select * from emp order by deptno desc limit 2
 * 分页查询(查询从第0条记录开始10条)：
+  
   > select * from emp order by deptno desc limit 0,10
 * 聚合(查询部门人数大于1的部门编号)：
+  
   > select deptno,count(1) from emp group by deptno having count(1) > 1
 * 连接查询：
+  
   > select * from emp e left join dept d on e.deptno=d.deptno
 * 子查询：
+  
   > select * from emp where deptno in (select deptno from dept)
 * 记录联合：
+  
   > select deptno from emp union select deptno from dept
 
 ## 数据控制语句(DCL)
 ### 1. 权限相关
 * 授予操作权限(将test数据库中所有表的select和insert权限授予test用户)：
+  
   > grant select,insert on test.* to 'test'@'localhost' identified by '123'
 * 查看账号权限：
+  
   > show grants for 'test'@'localhost'
 * 收回操作权限：
+  
   > revoke insert on test.* from 'test'@'localhost'
 * 授予所有数据库的所有权限：
+  
   > grant all privileges on *.* to 'test'@'localhost'
 * 授予所有数据库的所有权限(包括grant)：
+  
   > grant all privileges on *.* to 'test'@'localhost' with grant option
 * 授予SUPER PROCESS FILE权限（系统权限不能指定数据库）：
+  
   > grant super,process,file on *.* to 'test'@'localhost'
 * 只授予登录权限：
+  
   > grant usage on *.* to 'test'@'localhost'
 
 ### 2. 账号相关
 * 删除账号：
+  
   > drop user 'test'@'localhost'
 * 修改自己的密码：
   * > set password = password('123')
   * > SET PASSWORD FOR 'root'@'localhost' = PASSWORD('newpass');
   * > ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
 * 管理员修改他人密码：
+  
   > set password for 'test'@'localhost' = password('123')
 
 ## 事务
 
 * 查看事务隔离级别
+  
   > select @@tx_isolation;
 * 设置事务隔离级别
   * > set session transaction isolation level read uncommitted;
@@ -128,21 +165,32 @@
   * > set session transaction isolation level repeatable-read;
   * > set session transaction isolation level serializable;
 
+- 开启提交回滚事务
+    - BEGIN
+    - commit
+    - rollback
+
 ## 其他
 ### 字符集相关
 * 查看字符集：
+  
   > show variables like 'character%'
 * 创建数据库时指定字符集：
+  
   > create database test2 character set utf8
 
 ### 时区相关
 * 查看当前时区（UTC为世界统一时间，中国为UTC+8）：
+  
   > show variables like "%time_zone%"
 * 修改mysql全局时区为北京时间，即我们所在的东8区：
+  
   > set global time_zone = '+8:00';
 * 修改当前会话时区：
+  
   > set time_zone = '+8:00'
 * 立即生效：
+  
   > flush privileges
 
 ## 导入导出数据库

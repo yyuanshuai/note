@@ -31,7 +31,7 @@ ssh-keygen -t rsa -f test -P 123456
 -C: 备注。默认为user@hostname
 
 ssh-keygen -R 192.168.0.105//清理该IP的认证
-
+clip < ~/.ssh/id_rsa.pub
 
 ssh-copy-id user@host//复制到远程主机,, 之后就可以不用密码登录了
 

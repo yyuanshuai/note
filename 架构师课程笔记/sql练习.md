@@ -39,7 +39,7 @@ CREATE TABLE `student`(
 	`s_name` VARCHAR(20) NOT NULL DEFAULT '',
 	`s_birth` VARCHAR(20) NOT NULL DEFAULT '',
 	`s_sex` VARCHAR(10) NOT NULL DEFAULT '',
-	PRIMARY KEY(`s_id`)
+	PRIMARY KEY(`id`)
 );
 insert into student values('01' , '赵雷' , '1990-01-01' , '男');
 insert into student values('02' , '钱电' , '1990-12-21' , '男');
@@ -62,7 +62,7 @@ CREATE TABLE `course`(
 	`id`  VARCHAR(20),
 	`c_name` VARCHAR(20) NOT NULL DEFAULT '',
 	`t_id` VARCHAR(20) NOT NULL,
-	PRIMARY KEY(`c_id`)
+	PRIMARY KEY(`id`)
 );
 insert into course values('01' , '语文' , '02');
 insert into course values('02' , '数学' , '01');
@@ -75,7 +75,7 @@ insert into course values('03' , '英语' , '03');
 CREATE TABLE `teacher`(
 	`id` VARCHAR(20),
 	`t_name` VARCHAR(20) NOT NULL DEFAULT '',
-	PRIMARY KEY(`t_id`)
+	PRIMARY KEY(`id`)
 );
 insert into teacher values('01' , '张三');
 insert into teacher values('02' , '李四');
@@ -119,7 +119,7 @@ insert into score  values('07' , '03' , 98);
 
    1.2 查询存在" 01 "课程但可能不存在" 02 "课程的情况(不存在时显示为 null ) 
 
-   1.3 查询不存在" 01 "课程但存在" 02 "课程的情况
+   **1.3 查询不存在" 01 "课程但存在" 02 "课程的情况**
 
 2. 查询平均成绩大于等于 60 分的同学的学生编号和学生姓名和平均成绩
 
@@ -277,7 +277,7 @@ WHERE
 	sc1.c_id = '01';
 ```
 
-1.3 查询不存在" 01 "课程但存在" 02 "课程的情况*****
+**1.3 查询不存在" 01 "课程但存在" 02 "课程的情况***
 
 ```mysql
 SELECT

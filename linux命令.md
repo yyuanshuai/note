@@ -140,6 +140,17 @@ pkill -9  php-fpm #结束所有的 php-fpm 进程
 
 
 
+## windowns查看端口占用情况与杀死进程
+
+```powershell
+netstat -ano | findstr 8080
+tasklist|findstr 8080 #查找对应进程名称
+taskkill /f /pid 8080 #强制杀死端口进程
+taskkill /f /t /im /javaw.exe #强制杀死进程
+```
+
+
+
 # 服务操作
 
 ## systemctl
@@ -240,6 +251,7 @@ tar -zxvf archive.tar.gz 解压一个gzip格式的压缩包////-C<目的目录>�
 ```shell
 zip file1.zip file1 创建一个zip格式的压缩包
 zip -rS file1.zip file1 file2 dir1 将几个文件(递归处理，将指定目录下的所有文件和子目录一并处理。)和目录同时压缩成一个zip格式的压缩包 -s包含系统和隐藏文件
+zip -r name.zip ./* -x a.php #排除a.php压缩
 unzip file1.zip 解压一个zip格式压缩包
 unzip -l 查看压缩包内所有文件
 zipinfo filename.zip 查看压缩包内文件
