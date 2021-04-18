@@ -3,6 +3,7 @@
 ```
 brew search git
 brew install git
+brew install --cask switchhosts
 brew upgrade git
 brew uninstall git
 brew reinstall name：重新安装软件

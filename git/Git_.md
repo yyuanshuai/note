@@ -27,8 +27,10 @@ git push origin master
 ```
 
 # 远程操作
-
 ```shell
+
+git diff HEAD -- readme.txt命令可以查看工作区和版本库里面最新版本的区别
+
 git remote
 git remote -v
 git remote show
@@ -49,12 +51,39 @@ git push <remote> <branch>
 
 #删除远程分支
 git push origin --delete serverfix#基本上这个命令做的只是从服务器上移除这个指针。 Git 服务器通常会保留数据一段时间直到垃圾回收运行，所以如果不小心删除掉了，通常是很容易恢复的。
-
-
-
 ```
 
+git remote add origin git@github.com:账户名/learngit.git
 
+git push -u origin master//由于远程库是空的，我们第一次推送`master`分支时，加上了`-u`参数，Git不但会把本地的`master`分支内容推送的远程新的`master`分支，还会把本地的`master`分支和远程的`master`分支关联起来，在以后的推送或者拉取时就可以简化命令。
+
+git push origin master//之后就不需要-u参数
+
+git reset --hard HEAD^#一个^表示上一个版本
+
+git reset –hard HEAD~100 
+
+git reset --hard <commit_id>
+
+git checkout -- readme.txt意思就是，把readme.txt文件在工作区的修改全部撤销，这里有两种情况：
+
+> 一种是`readme.txt`自修改后还没有被放到暂存区，现在，撤销修改就回到和版本库一模一样的状态；
+>
+> 一种是`readme.txt`已经添加到暂存区后，又作了修改，现在，撤销修改就回到添加到暂存区后的状态。
+>
+> 总之，就是让这个文件回到最近一次`git commit`或`git add`时的状态。
+>
+> --很重要，没有--，就变成了“切换到另一个分支”的命令，我们在后面的分支管理中会再次遇到git checkout命令。
+
+##### 高级操作
+
+```shell
+#丢弃某个版本的提交, 但是保留该版本后续的提交. 也就是回滚某个版本,不是回滚到某个版本.该操作很可能会出现冲突,需手动解决冲突
+git revert -n <version>
+#执行上面的命令后, 需要重新commit,提交新的版本.
+git commit -m "comment" 
+
+```
 
 # 分支操作
 
@@ -160,8 +189,6 @@ git config --global --unset https.proxy
 
 ```
 
-
-
 # 不常用操作
 
 ```shell
@@ -169,3 +196,24 @@ git init .
 git init --bare my-project.git
 ```
 
+git config --global --unset https.proxy
+
+
+
+远程库操作
+
+git remote rm <name>//解除本地和远程的绑定关系，并不是物理上删除了远程库
+
+
+
+#### 回滚操作
+
+丢弃工作区的修改#将工作区的修改还原回到最近一次`git commit`或`git add`时的状态。也就是用暂存区或版本库里的版本覆盖当前工作区的文件, 可用作恢复删除文件
+
+git checkout -- filename
+
+丢弃暂存区的修改#将暂存区的文件清除出暂存区, 工作区的修改不变
+
+git reset HEAD <filename>
+
+git reset --hard <version>
