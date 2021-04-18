@@ -1,3 +1,23 @@
+
+
+#### 常用插件
+
+```
+Alibaba Java Coding Guidelines   阿里代码规范插件
+MybatisX                    mybatis使用辅助插件
+Grep Console                 日志关键词过滤显示
+Lombok                     简化get/set构造函数等方法的注解插件
+Maven Helper                maven帮助插件，便于维护依赖链
+SonarLint                    代码质量检查插件
+Gerrit						 代码提交至Gerrit的插件	
+
+
+```
+
+
+
+
+
 ## IDEA 快捷键（摆脱鼠标）
 
 来源 | blog.csdn.net/qq_37918553/article/details/83821856

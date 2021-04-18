@@ -29,16 +29,17 @@
   > show processlist
 
   
+
 ### 2. 表操作
 
 * 创建表
-    ```
+    ```sql
     create table users(
-        id int unsigned auto_increment not null comment 'id',
-        name varchar(100) not null comment '真实姓名',
-        wechat varchar(100) comment '微信号',
-        phone varchar(25) not null comment '联系电话',
-        address text comment '收件地址',
+        id int unsigned auto_increment NOT NULL COMMENT 'id',
+        name varchar(100) NOT NULL COMMENT '真实姓名',
+        wechat varchar(100) DEFAULE NULL COMMENT '微信号',
+        phone varchar(25) NOT NULL COMMENT '联系电话',
+        address text COMMENT '收件地址',
         primary key (id),
         unique wechat(wechat),
         index phone(phone)
@@ -47,28 +48,30 @@
 
 * 查看表的定义：
   
-  > desc 表名
+  > DESC 表名
 * 查看表定义（详细）：
   
-  > show create table users \G
+  > SHOW CREATE TABLE users \G
 * 删除表：
   
-  > drop table users
+  > DROP TABLE users
 * 修改表字段：
   
-  > alter table users modify job varchart(255);
+  > ALTER TABLE users MODIFY job varchart(255);
 * 添加表字段：
   
-  > alter table users add avatar varchart(255) after resume;
+  > ALTER TABLE users ADD COLUMN avatar varchart(255) DEFAULT NULL COMMENT '姓名' AFTER resume; 
 * 删除表字段：
   
-  > alter table users drop sex;
+  > ALTER TABLE table DROP COLUMN ACTIVITY_END_TIME;
+  >
+  > ALTER TABLE table DROP COLUMN ACTIVITY_START_TIME;
 * 修改列名
   
-  > alter table users change name new_name varchart(255);
+  > ALTER TABLE users CHANGE name new_name varchart(255)  DEFAULT NULL COMMENT '姓名' AFTER resume;
 * 修改表名
   
-  > alter table users rename to employee;
+  > ALTER TABLE users RENAME to employee;
 
 ## 数据操z纵语句(DML)
 
