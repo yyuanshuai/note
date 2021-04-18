@@ -371,3 +371,30 @@ docker run -d --rm --name mongo -p 27017:27017 mongo:3.6 --auth
   -v /mydata/jenkins_home:/var/jenkins_home \
   -d jenkins/jenkins:lts
 ```
+
+### zookeeper
+
+```shell
+docker pull zookeeper
+docker run -d --privileged=true --name zookeeper -p 2181:2181 zookeeper
+docker exec -it zookeeper /bin/bash
+--------------------
+./zkCli.sh -server 127.0.0.1:2181
+
+--------------------
+
+
+
+```
+
+
+
+### apache/dubbo-admin
+
+```shell
+docker pull apache/dubbo-admin
+docker run -d --link zookeeper -p 8080:8080 apache/dubbo-admin
+#172.17.0.8是从docker inspect zookeeper中network得到的
+docker run -p 8080:8080 --name dubbo-admin -e admin.registry.address=zookeeper://172.17.0.8:2181 -e admin.config-center=zookeeper://172.17.0.8:2181 -e admin.metadata-report.address=zookeeper://172.17.0.8:2181 apache/dubbo-admin
+```
+
